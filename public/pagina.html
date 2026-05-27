@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title id="page-title">Carregando...</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black:   #0a0806;
+  --deep:    #110d0a;
+  --card:    #1a1410;
+  --wine:    #6b1a2a;
+  --wine-lt: #8b2a3f;
+  --gold:    #c9a84c;
+  --gold-lt: #e2c97e;
+  --gold-dk: #8a6b28;
+  --cream:   #f0e6d3;
+  --muted:   #8a7a6a;
+  --text:    #e8ddd0;
+  --r: .75rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .4; pointer-events: none;
+}
+
+/* ── LOADING ── */
+#loading {
+  position: fixed; inset: 0; z-index: 999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--black); gap: 1.5rem;
+  transition: opacity .6s ease;
+}
+#loading.fade { opacity: 0; pointer-events: none; }
+
+.loading-ring {
+  width: 48px; height: 48px;
+  border: 2px solid var(--gold-dk);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-family: 'Cinzel', serif;
+  font-size: .75rem;
+  letter-spacing: .2em;
+  color: var(--gold-dk);
+  text-transform: uppercase;
+}
+
+/* ── ERROR STATE ── */
+#error-state {
+  display: none;
+  position: fixed; inset: 0; z-index: 998;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem;
+  background: var(--black); text-align: center; padding: 2rem;
+}
+#error-state.show { display: flex; }
+#error-state h2 { font-family: 'Cinzel', serif; color: var(--wine); font-size: 1.25rem; }
+#error-state p { color: var(--muted); font-size: .875rem; max-width: 280px; }
+
+/* ── MAIN ── */
+main {
+  position: relative; z-index: 1;
+  max-width: 480px; margin: 0 auto;
+  padding: 0 1.25rem 5rem;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+main.visible { opacity: 1; transform: translateY(0); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; gap: 1.5rem;
+  padding: 3rem 0 2rem;
+}
+
+.hero-ornament {
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  position: relative;
+}
+.hero-ornament::before {
+  content: '✦';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--gold); font-size: .6rem;
+  background: var(--black); padding: 0 .5rem;
+}
+
+.hero-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: .65rem;
+  letter-spacing: .3em;
+  color: var(--gold-dk);
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 300;
+  line-height: 1.15;
+  color: var(--cream);
+}
+.hero-title em {
+  font-style: italic;
+  color: var(--gold-lt);
+  display: block;
+}
+
+.hero-date {
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  letter-spacing: .15em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ── CARROSSEL ── */
+.carousel-wrap {
+  position: relative;
+  width: calc(100% + 2.5rem);
+  margin-left: -1.25rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--deep);
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%; height: 100%;
+  transition: transform .5s cubic-bezier(.4,0,.2,1);
+}
+
+.carousel-slide {
+  min-width: 100%; height: 100%;
+  position: relative; flex-shrink: 0;
+}
+
+.carousel-slide img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(10,8,6,.7) 0%, transparent 50%);
+}
+
+.carousel-dots {
+  position: absolute; bottom: 1rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: .4rem;
+}
+.carousel-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(201,168,76,.3);
+  transition: background .3s, transform .3s;
+  cursor: pointer;
+}
+.carousel-dot.active {
+  background: var(--gold);
+  transform: scale(1.4);
+}
+
+.carousel-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(10,8,6,.6); border: 1px solid rgba(201,168,76,.2);
+  color: var(--gold); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; transition: background .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.carousel-btn:active { background: rgba(107,26,42,.4); }
+.carousel-btn.prev { left: .75rem; }
+.carousel-btn.next { right: .75rem; }
+
+/* ── MENSAGEM ── */
+.section { margin-top: 3rem; }
+
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: .6rem;
+  letter-spacing: .3em;
+  color: var(--gold-dk);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.section-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--gold-dk), transparent);
+}
+
+.mensagem-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.125rem;
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--cream);
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+/* ── CONTADOR ── */
+.counter-wrap {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--deep), var(--card));
+  border: 1px solid rgba(201,168,76,.12);
+  border-radius: var(--r);
+  display: flex; justify-content: center; gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.counter-unit {
+  text-align: center; min-width: 48px;
+}
+.counter-num {
+  font-family: 'Cinzel', serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.counter-lbl {
+  font-size: .55rem;
+  letter-spacing: .15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: .3rem;
+  display: block;
+}
+.counter-sep {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  color: var(--wine);
+  align-self: flex-start;
+  margin-top: .15rem;
+}
+
+/* ── SPOTIFY PLAYER ── */
+.player-wrap {
+  background: linear-gradient(135deg, #0f0a08, #1a120e);
+  border: 1px solid rgba(201,168,76,.12);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+/* Embed oficial Spotify */
+.spotify-embed {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  display: block;
+}
+
+/* ── ÁLBUM ── */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .4rem;
+}
+
+.album-item {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  background: var(--deep);
+}
+.album-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease;
+  display: block;
+}
+.album-item:active img { transform: scale(1.05); }
+
+.album-item .album-legenda {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(10,8,6,.85));
+  padding: 1.5rem .5rem .4rem;
+  font-size: .6rem;
+  color: var(--cream);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.album-item:hover .album-legenda { opacity: 1; }
+
+/* ── LIGHTBOX ── */
+.lightbox {
+  display: none;
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(5,3,2,.95);
+  align-items: center; justify-content: center;
+  padding: 1rem;
+  -webkit-tap-highlight-color: transparent;
+}
+.lightbox.open { display: flex; }
+.lightbox img {
+  max-width: 100%; max-height: 90dvh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.lightbox-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.2);
+  color: var(--gold); font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-caption {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: .875rem;
+  color: var(--muted); text-align: center;
+  width: 80%;
+}
+
+/* ── FOOTER ── */
+.page-footer {
+  margin-top: 4rem; text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(201,168,76,.08);
+}
+.footer-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  color: var(--wine);
+  display: block; margin-bottom: .5rem;
+}
+.footer-brand {
+  font-family: 'Cinzel', serif;
+  font-size: .55rem;
+  letter-spacing: .3em;
+  color: var(--gold-dk);
+  text-transform: uppercase;
+}
+
+/* ── ANIMAÇÕES DE ENTRADA ── */
+.fade-in {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in, main { transition: none !important; }
+  .carousel-track { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-ring"></div>
+  <span class="loading-text">Preparando sua memória</span>
+</div>
+
+<div id="error-state">
+  <h2>Página indisponível</h2>
+  <p>Esta página não existe ou foi desativada. Se você recebeu este link, entre em contato com a Caverna.</p>
+</div>
+
+<main id="main-content">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-ornament"></div>
+    <span class="hero-subtitle">Uma memória para sempre</span>
+    <h1 class="hero-title" id="hero-title">
+      <em id="hero-title-text"></em>
+    </h1>
+    <span class="hero-date" id="hero-date"></span>
+    <div class="hero-ornament"></div>
+  </section>
+
+  <!-- CARROSSEL -->
+  <section id="section-carrossel" class="fade-in" style="display:none">
+    <div class="carousel-wrap" id="carousel">
+      <div class="carousel-track" id="carousel-track"></div>
+      <div class="carousel-overlay"></div>
+      <button class="carousel-btn prev" onclick="carMove(-1)" aria-label="Anterior">‹</button>
+      <button class="carousel-btn next" onclick="carMove(1)" aria-label="Próxima">›</button>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+  </section>
+
+  <!-- MENSAGEM -->
+  <section class="section fade-in">
+    <div class="section-label">Nossa história</div>
+    <p class="mensagem-text" id="mensagem"></p>
+  </section>
+
+  <!-- CONTADOR -->
+  <div class="counter-wrap fade-in" id="counter-wrap" style="display:none">
+    <div class="counter-unit">
+      <span class="counter-num" id="cnt-anos">0</span>
+      <span class="counter-lbl">Anos</span>
+    </div>
+    <span class="counter-sep">·</span>
+    <div class="counter-unit">
+      <span class="counter-num" id="cnt-meses">0</span>
+      <span class="counter-lbl">Meses</span>
+    </div>
+    <span class="counter-sep">·</span>
+    <div class="counter-unit">
+      <span class="counter-num" id="cnt-dias">0</span>
+      <span class="counter-lbl">Dias</span>
+    </div>
+    <span class="counter-sep">·</span>
+    <div class="counter-unit">
+      <span class="counter-num" id="cnt-horas">0</span>
+      <span class="counter-lbl">Horas</span>
+    </div>
+    <span class="counter-sep">·</span>
+    <div class="counter-unit">
+      <span class="counter-num" id="cnt-min">00</span>
+      <span class="counter-lbl">Min</span>
+    </div>
+  </div>
+
+  <!-- SPOTIFY -->
+  <section id="section-spotify" class="section fade-in" style="display:none">
+    <div class="section-label">Nossa música</div>
+    <div class="player-wrap">
+      <iframe id="spotify-iframe"
+        class="spotify-embed"
+        height="152"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        allowfullscreen>
+      </iframe>
+    </div>
+  </section>
+
+  <!-- ÁLBUM -->
+  <section id="section-album" class="section fade-in" style="display:none">
+    <div class="section-label">Nosso álbum</div>
+    <div class="album-grid" id="album-grid"></div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="page-footer fade-in">
+    <span class="footer-ornament">♥</span>
+    <span class="footer-brand">Caverna · Memórias que duram</span>
+  </footer>
+
+</main>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt=""/>
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <span class="lightbox-caption" id="lightbox-caption"></span>
+</div>
+
+<script>
+// ── UTILS ──
+const slug = location.pathname.split('/p/')[1]?.replace(/\/$/, '')
+const API = '' // mesmo domínio
+
+let carIndex = 0, carSlides = []
+
+// ── FETCH DA PÁGINA ──
+async function loadPage() {
+  if (!slug) return showError()
+
+  const origem = new URLSearchParams(location.search).get('origem') || 'link_direto'
+
+  try {
+    const res = await fetch(`${API}/p/${slug}?origem=${origem}`)
+    if (!res.ok) return showError()
+    const data = await res.json()
+    renderPage(data)
+  } catch {
+    showError()
+  }
+}
+
+// ── RENDER ──
+function renderPage({ pagina, carrossel, album }) {
+  document.title = pagina.titulo_personalizado || 'Nossa memória'
+  document.getElementById('page-title').textContent = document.title
+
+  // Hero
+  document.getElementById('hero-title-text').textContent = pagina.titulo_personalizado || ''
+  if (pagina.data_inicio_relacionamento) {
+    const d = new Date(pagina.data_inicio_relacionamento + 'T00:00:00')
+    document.getElementById('hero-date').textContent =
+      'Desde ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+  }
+
+  // Mensagem
+  document.getElementById('mensagem').textContent = pagina.mensagem_especial || ''
+
+  // Contador
+  if (pagina.data_inicio_relacionamento) {
+    document.getElementById('counter-wrap').style.display = 'flex'
+    startCounter(new Date(pagina.data_inicio_relacionamento + 'T00:00:00'))
+  }
+
+  // Carrossel
+  if (carrossel?.length) {
+    renderCarrossel(carrossel)
+    document.getElementById('section-carrossel').style.display = 'block'
+  }
+
+  // Spotify
+  if (pagina.spotify_url) {
+    renderSpotify(pagina.spotify_url)
+    document.getElementById('section-spotify').style.display = 'block'
+  }
+
+  // Álbum
+  if (album?.length) {
+    renderAlbum(album)
+    document.getElementById('section-album').style.display = 'block'
+  }
+
+  // Mostra conteúdo
+  const loading = document.getElementById('loading')
+  loading.classList.add('fade')
+  setTimeout(() => {
+    loading.style.display = 'none'
+    const main = document.getElementById('main-content')
+    main.classList.add('visible')
+    observeFadeIns()
+  }, 600)
+}
+
+// ── CARROSSEL ──
+function renderCarrossel(fotos) {
+  const track = document.getElementById('carousel-track')
+  const dots = document.getElementById('carousel-dots')
+  carSlides = fotos
+
+  fotos.forEach((f, i) => {
+    const slide = document.createElement('div')
+    slide.className = 'carousel-slide'
+    const img = document.createElement('img')
+    img.src = f.url
+    img.alt = f.legenda || `Foto ${i + 1}`
+    img.loading = i === 0 ? 'eager' : 'lazy'
+    slide.appendChild(img)
+    track.appendChild(slide)
+
+    const dot = document.createElement('div')
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '')
+    dot.onclick = () => carGoTo(i)
+    dots.appendChild(dot)
+  })
+
+  // Touch/swipe
+  let startX = 0
+  const carousel = document.getElementById('carousel')
+  carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX }, { passive: true })
+  carousel.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 40) carMove(diff > 0 ? 1 : -1)
+  })
+}
+
+function carGoTo(i) {
+  carIndex = i
+  document.getElementById('carousel-track').style.transform = `translateX(-${i * 100}%)`
+  document.querySelectorAll('.carousel-dot').forEach((d, j) =>
+    d.classList.toggle('active', j === i))
+}
+
+function carMove(dir) {
+  const n = carSlides.length
+  carGoTo((carIndex + dir + n) % n)
+}
+
+// ── SPOTIFY ──
+function renderSpotify(url) {
+  // Extrai ID da URL do Spotify (track, album ou playlist)
+  // Exemplos: https://open.spotify.com/track/ID ou https://open.spotify.com/playlist/ID
+  const match = url.match(/spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/)
+  if (!match) return
+
+  const [, tipo, id] = match
+  const embedUrl = `https://open.spotify.com/embed/${tipo}/${id}?utm_source=generator&theme=0`
+  document.getElementById('spotify-iframe').src = embedUrl
+}
+
+// ── ÁLBUM ──
+function renderAlbum(fotos) {
+  const grid = document.getElementById('album-grid')
+  fotos.forEach(f => {
+    if (f.tipo !== 'foto') return
+    const item = document.createElement('div')
+    item.className = 'album-item'
+
+    const img = document.createElement('img')
+    img.src = f.url
+    img.alt = f.legenda || ''
+    img.loading = 'lazy'
+
+    item.appendChild(img)
+
+    if (f.legenda) {
+      const leg = document.createElement('span')
+      leg.className = 'album-legenda'
+      leg.textContent = f.legenda
+      item.appendChild(leg)
+    }
+
+    item.onclick = () => openLightbox(f.url, f.legenda)
+    grid.appendChild(item)
+  })
+}
+
+// ── LIGHTBOX ──
+function openLightbox(src, caption) {
+  document.getElementById('lightbox-img').src = src
+  document.getElementById('lightbox-caption').textContent = caption || ''
+  document.getElementById('lightbox').classList.add('open')
+  document.body.style.overflow = 'hidden'
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open')
+  document.body.style.overflow = ''
+}
+
+// Fecha lightbox com ESC
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox() })
+
+// ── CONTADOR ──
+function startCounter(dataInicio) {
+  function tick() {
+    const agora = new Date()
+    const diff = agora - dataInicio
+
+    const totalSec = Math.floor(diff / 1000)
+    const totalMin = Math.floor(totalSec / 60)
+    const totalHoras = Math.floor(totalMin / 60)
+    const totalDias = Math.floor(totalHoras / 24)
+
+    const anos = Math.floor(totalDias / 365)
+    const meses = Math.floor((totalDias % 365) / 30)
+    const dias = totalDias % 30
+    const horas = totalHoras % 24
+    const min = totalMin % 60
+
+    document.getElementById('cnt-anos').textContent = anos
+    document.getElementById('cnt-meses').textContent = meses
+    document.getElementById('cnt-dias').textContent = dias
+    document.getElementById('cnt-horas').textContent = horas
+    document.getElementById('cnt-min').textContent = String(min).padStart(2, '0')
+  }
+  tick()
+  setInterval(tick, 60000)
+}
+
+// ── FADE-IN NO SCROLL ──
+function observeFadeIns() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } })
+  }, { threshold: 0.1 })
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el))
+}
+
+// ── ERROR ──
+function showError() {
+  document.getElementById('loading').style.display = 'none'
+  document.getElementById('error-state').classList.add('show')
+}
+
+// ── INIT ──
+loadPage()
+</script>
+</body>
+</html>

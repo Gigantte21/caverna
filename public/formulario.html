@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Monte sua memória — Caverna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --black: #0a0806; --deep: #110d0a; --card: #1a1410;
+  --wine: #6b1a2a; --gold: #c9a84c; --gold-lt: #e2c97e; --gold-dk: #8a6b28;
+  --cream: #f0e6d3; --muted: #8a7a6a; --text: #e8ddd0;
+  --error: #e05555; --success: #4caf7d;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--black); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; min-height: 100dvh; }
+
+/* LOADING */
+#loading { position: fixed; inset: 0; z-index: 99; background: var(--black); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; transition: opacity .5s; }
+#loading.hide { opacity: 0; pointer-events: none; }
+.ring { width: 44px; height: 44px; border: 2px solid var(--gold-dk); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-txt { font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: .25em; color: var(--gold-dk); text-transform: uppercase; }
+
+/* SUCCESS */
+#success { display: none; position: fixed; inset: 0; z-index: 98; background: var(--black); flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; padding: 2rem; text-align: center; }
+#success.show { display: flex; }
+#success .s-icon { font-size: 3rem; }
+#success h2 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.25rem; letter-spacing: .1em; }
+#success p { color: var(--muted); font-size: .875rem; max-width: 300px; line-height: 1.6; }
+#success .qr-img { width: 180px; height: 180px; border: 2px solid var(--gold-dk); border-radius: 8px; object-fit: contain; background: var(--cream); }
+#success .url-box { background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 6px; padding: .75rem 1rem; font-size: .8rem; color: var(--gold-lt); word-break: break-all; max-width: 320px; }
+#success .btn-copiar { background: var(--wine); color: var(--cream); border: none; border-radius: 6px; padding: .75rem 2rem; font-family: 'Cinzel', serif; font-size: .75rem; letter-spacing: .1em; cursor: pointer; transition: background .2s; }
+#success .btn-copiar:hover { background: #8b2a3f; }
+
+/* ERROR */
+#error-state { display: none; position: fixed; inset: 0; z-index: 97; background: var(--black); flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 2rem; text-align: center; }
+#error-state.show { display: flex; }
+#error-state h2 { font-family: 'Cinzel', serif; color: var(--error); }
+#error-state p { color: var(--muted); font-size: .875rem; max-width: 280px; }
+
+/* LAYOUT */
+main { max-width: 480px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+
+header { text-align: center; margin-bottom: 2.5rem; padding-top: 1rem; }
+.logo-mark { font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: .3em; color: var(--gold-dk); text-transform: uppercase; display: block; margin-bottom: .75rem; }
+header h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 300; color: var(--cream); }
+header h1 em { font-style: italic; color: var(--gold-lt); }
+header p { margin-top: .5rem; font-size: .8rem; color: var(--muted); }
+
+/* FORM */
+.step { margin-bottom: 2rem; }
+.step-label { font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: .25em; color: var(--gold-dk); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .75rem; }
+.step-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-dk), transparent); }
+
+.field { margin-bottom: 1.25rem; }
+label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: .4rem; letter-spacing: .05em; }
+label span { color: var(--wine); }
+
+input[type=text], input[type=date], input[type=url], textarea, select {
+  width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.15);
+  border-radius: 6px; padding: .75rem 1rem; color: var(--cream);
+  font-family: 'Inter', sans-serif; font-size: .875rem; font-weight: 300;
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none; appearance: none;
+}
+input[type=date] { color-scheme: dark; }
+input:focus, textarea:focus, select:focus { border-color: var(--gold-dk); }
+textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+select option { background: var(--deep); }
+
+.field-hint { font-size: .7rem; color: var(--muted); margin-top: .3rem; }
+.field-error { font-size: .7rem; color: var(--error); margin-top: .3rem; display: none; }
+
+/* UPLOAD */
+.upload-area {
+  border: 1px dashed rgba(201,168,76,.25); border-radius: 8px;
+  padding: 1.5rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s;
+  position: relative;
+}
+.upload-area:hover, .upload-area.drag { border-color: var(--gold); background: rgba(201,168,76,.04); }
+.upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-icon { font-size: 1.5rem; margin-bottom: .5rem; display: block; }
+.upload-txt { font-size: .8rem; color: var(--muted); }
+.upload-txt strong { color: var(--gold-lt); }
+
+.preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin-top: .75rem; }
+.preview-item { aspect-ratio: 1; border-radius: 4px; overflow: hidden; position: relative; background: var(--deep); }
+.preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.preview-item .rm { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: rgba(10,8,6,.8); border-radius: 50%; border: none; color: var(--cream); font-size: .6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.upload-progress { margin-top: .5rem; }
+.progress-bar { height: 3px; background: var(--deep); border-radius: 2px; overflow: hidden; margin-top: .3rem; }
+.progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width .3s; }
+.progress-txt { font-size: .65rem; color: var(--muted); }
+
+/* TERMOS */
+.termos-wrap { display: flex; align-items: flex-start; gap: .75rem; margin-top: 1rem; }
+.termos-wrap input[type=checkbox] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--wine); margin-top: 2px; cursor: pointer; }
+.termos-txt { font-size: .75rem; color: var(--muted); line-height: 1.5; }
+.termos-txt a { color: var(--gold-dk); text-decoration: underline; }
+
+/* BOTÃO */
+.btn-submit {
+  width: 100%; padding: 1rem; margin-top: 1.5rem;
+  background: linear-gradient(135deg, var(--wine), #8b2a3f);
+  border: none; border-radius: 8px;
+  font-family: 'Cinzel', serif; font-size: .8rem; letter-spacing: .15em;
+  color: var(--cream); cursor: pointer;
+  transition: opacity .2s, transform .1s;
+  text-transform: uppercase;
+}
+.btn-submit:active { transform: scale(.98); }
+.btn-submit:disabled { opacity: .4; cursor: not-allowed; }
+
+.form-error { background: rgba(224,85,85,.1); border: 1px solid rgba(224,85,85,.3); border-radius: 6px; padding: .75rem 1rem; font-size: .8rem; color: var(--error); margin-top: 1rem; display: none; }
+.form-error.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="ring"></div>
+  <span class="loading-txt">Verificando seu acesso</span>
+</div>
+
+<div id="error-state">
+  <h2>Link inválido</h2>
+  <p id="error-msg">Este link expirou ou já foi utilizado. Entre em contato com a Caverna.</p>
+</div>
+
+<div id="success">
+  <span class="s-icon">♥</span>
+  <h2>Memória criada!</h2>
+  <p>Sua página está pronta. Guarde o QR Code abaixo e o link para compartilhar.</p>
+  <img class="qr-img" id="success-qr" src="" alt="QR Code"/>
+  <div class="url-box" id="success-url"></div>
+  <button class="btn-copiar" onclick="copiarLink()">Copiar link</button>
+</div>
+
+<main id="form-wrap" style="display:none">
+  <header>
+    <span class="logo-mark">Caverna · Memórias</span>
+    <h1>Monte sua <em>memória</em></h1>
+    <p>Preencha com carinho — isso vai durar para sempre.</p>
+  </header>
+
+  <!-- PASSO 1 -->
+  <div class="step">
+    <div class="step-label">1 · Sua história</div>
+
+    <div class="field">
+      <label>Título da página <span>*</span></label>
+      <input type="text" id="titulo" maxlength="255" placeholder="Ex: Eu e você, para sempre"/>
+      <div class="field-hint">Aparece em destaque no topo da página.</div>
+    </div>
+
+    <div class="field">
+      <label>Data em que ficaram juntos <span>*</span></label>
+      <input type="date" id="data"/>
+      <div class="field-hint">Usamos para calcular o contador de tempo.</div>
+    </div>
+
+    <div class="field">
+      <label>Mensagem especial <span>*</span></label>
+      <textarea id="mensagem" maxlength="2000" placeholder="Escreva o que sente..."></textarea>
+    </div>
+  </div>
+
+  <!-- PASSO 2 -->
+  <div class="step">
+    <div class="step-label">2 · Fotos do carrossel</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Até 4 fotos — aparecem em destaque no topo da página.</p>
+
+    <div class="upload-area" id="drop-carrossel">
+      <input type="file" id="input-carrossel" accept="image/jpeg,image/png,image/webp" multiple/>
+      <span class="upload-icon">🖼</span>
+      <div class="upload-txt"><strong>Toque para escolher</strong> ou arraste aqui<br/>JPG, PNG, WebP · máx. 20MB cada</div>
+    </div>
+    <div class="preview-grid" id="preview-carrossel"></div>
+  </div>
+
+  <!-- PASSO 3 -->
+  <div class="step">
+    <div class="step-label">3 · Álbum de fotos</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Ilimitado — galeria completa na parte inferior da página.</p>
+
+    <div class="upload-area" id="drop-album">
+      <input type="file" id="input-album" accept="image/jpeg,image/png,image/webp" multiple/>
+      <span class="upload-icon">📸</span>
+      <div class="upload-txt"><strong>Toque para escolher</strong> ou arraste aqui</div>
+    </div>
+    <div class="preview-grid" id="preview-album"></div>
+
+    <div class="upload-progress" id="progress-wrap" style="display:none">
+      <div class="progress-txt" id="progress-txt">Enviando...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- PASSO 4 -->
+  <div class="step">
+    <div class="step-label">4 · Música (opcional)</div>
+    <div class="field">
+      <label>Link da música no Spotify</label>
+      <input type="url" id="spotify-url" placeholder="https://open.spotify.com/track/..."/>
+      <div class="field-hint">Cole o link de qualquer track, playlist ou álbum do Spotify.</div>
+    </div>
+  </div>
+
+  <!-- TERMOS -->
+  <div class="termos-wrap">
+    <input type="checkbox" id="termos"/>
+    <span class="termos-txt">
+      Li e aceito os <a href="#" target="_blank">Termos de Uso</a> da Caverna.
+      Entendo que a página ficará ativa enquanto a Caverna operar este serviço,
+      com aviso prévio de 90 dias em caso de encerramento.
+    </span>
+  </div>
+
+  <div class="form-error" id="form-error"></div>
+
+  <button class="btn-submit" id="btn-submit" onclick="submitForm()">
+    Criar minha memória ♥
+  </button>
+</main>
+
+<script>
+const token = new URLSearchParams(location.search).get('t')
+const API = ''
+
+let carrosselFiles = []
+let albumFiles = []
+let urlPagina = ''
+
+// ── VERIFICAÇÃO DO TOKEN ──
+async function init() {
+  if (!token) return showError('Link inválido ou incompleto.')
+
+  try {
+    const res = await fetch(`${API}/formulario/dados?t=${token}`)
+    if (res.status === 410) return showError('Este link já foi utilizado ou expirou.')
+    if (res.status === 401) return showError('Link inválido. Entre em contato com a Caverna.')
+    if (!res.ok) return showError('Erro ao verificar acesso. Tente novamente.')
+
+    const data = await res.json()
+    if (data.ja_preenchido) return showError('Este chaveiro já foi configurado.')
+
+    document.getElementById('loading').classList.add('hide')
+    setTimeout(() => {
+      document.getElementById('loading').style.display = 'none'
+      document.getElementById('form-wrap').style.display = 'block'
+    }, 500)
+  } catch {
+    showError('Erro de conexão. Verifique sua internet e tente novamente.')
+  }
+}
+
+// ── UPLOAD DE ARQUIVOS ──
+function setupUpload(inputId, previewId, filesArray, max) {
+  const input = document.getElementById(inputId)
+  const preview = document.getElementById(previewId)
+  const area = input.closest('.upload-area')
+
+  input.addEventListener('change', () => addFiles(input.files, filesArray, preview, max, input))
+
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag') })
+  area.addEventListener('dragleave', () => area.classList.remove('drag'))
+  area.addEventListener('drop', e => {
+    e.preventDefault(); area.classList.remove('drag')
+    addFiles(e.dataTransfer.files, filesArray, preview, max, input)
+  })
+}
+
+function addFiles(fileList, arr, previewEl, max, input) {
+  const novos = Array.from(fileList).filter(f =>
+    ['image/jpeg','image/png','image/webp'].includes(f.type) && f.size <= 20 * 1024 * 1024
+  )
+
+  if (max && arr.length + novos.length > max) {
+    mostrarErro(`Máximo de ${max} fotos nesta seção.`)
+    return
+  }
+
+  novos.forEach(f => {
+    arr.push(f)
+    const reader = new FileReader()
+    reader.onload = e => {
+      const item = document.createElement('div')
+      item.className = 'preview-item'
+      item.dataset.index = arr.length - 1
+      item.innerHTML = `<img src="${e.target.result}" alt=""/><button class="rm" type="button">✕</button>`
+      item.querySelector('.rm').onclick = () => {
+        const idx = arr.indexOf(f)
+        if (idx > -1) arr.splice(idx, 1)
+        item.remove()
+      }
+      previewEl.appendChild(item)
+    }
+    reader.readAsDataURL(f)
+  })
+  input.value = ''
+}
+
+setupUpload('input-carrossel', 'preview-carrossel', carrosselFiles, 4)
+setupUpload('input-album', 'preview-album', albumFiles, null)
+
+// ── SUBMIT ──
+async function submitForm() {
+  const titulo = document.getElementById('titulo').value.trim()
+  const data = document.getElementById('data').value
+  const mensagem = document.getElementById('mensagem').value.trim()
+  const spotifyUrl = document.getElementById('spotify-url').value.trim()
+  const termos = document.getElementById('termos').checked
+
+  if (!titulo) return mostrarErro('O título é obrigatório.')
+  if (!data) return mostrarErro('A data é obrigatória.')
+  if (!mensagem) return mostrarErro('A mensagem é obrigatória.')
+  if (!termos) return mostrarErro('Você precisa aceitar os termos para continuar.')
+
+  const btn = document.getElementById('btn-submit')
+  btn.disabled = true
+  btn.textContent = 'Criando sua memória...'
+  esconderErro()
+
+  try {
+    // 1. Envia dados textuais
+    const res = await fetch(`${API}/formulario/submit?t=${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo_personalizado: titulo,
+        data_inicio_relacionamento: data,
+        mensagem_especial: mensagem,
+        spotify_url: spotifyUrl || undefined,
+        termos_aceitos: true
+      })
+    })
+
+    if (!res.ok) {
+      const err = await res.json()
+      return mostrarErro(err.error || 'Erro ao criar a página.')
+    }
+
+    const { pagina, url_pagina, qr_code } = await res.json()
+    urlPagina = url_pagina
+
+    // 2. Upload das fotos do carrossel
+    if (carrosselFiles.length) {
+      await uploadMidias(carrosselFiles, 'foto', true)
+    }
+
+    // 3. Upload do álbum
+    if (albumFiles.length) {
+      await uploadMidias(albumFiles, 'foto', false)
+    }
+
+    // Sucesso!
+    document.getElementById('success-qr').src = qr_code || ''
+    document.getElementById('success-url').textContent = url_pagina
+    document.getElementById('form-wrap').style.display = 'none'
+    document.getElementById('success').classList.add('show')
+
+  } catch (err) {
+    mostrarErro('Erro de conexão. Tente novamente.')
+  } finally {
+    btn.disabled = false
+    btn.textContent = 'Criar minha memória ♥'
+  }
+}
+
+async function uploadMidias(files, tipo, isCarrossel) {
+  const progressWrap = document.getElementById('progress-wrap')
+  const progressFill = document.getElementById('progress-fill')
+  const progressTxt = document.getElementById('progress-txt')
+
+  progressWrap.style.display = 'block'
+
+  for (let i = 0; i < files.length; i++) {
+    progressTxt.textContent = `Enviando foto ${i + 1} de ${files.length}...`
+    progressFill.style.width = `${((i) / files.length) * 100}%`
+
+    const fd = new FormData()
+    fd.append('file', files[i])
+    fd.append('tipo', tipo)
+    fd.append('is_carrossel', isCarrossel ? 'true' : 'false')
+    fd.append('ordem', String(i))
+
+    await fetch(`${API}/formulario/midia?t=${token}`, {
+      method: 'POST',
+      body: fd
+    })
+  }
+
+  progressFill.style.width = '100%'
+  progressTxt.textContent = 'Fotos enviadas!'
+  setTimeout(() => { progressWrap.style.display = 'none' }, 1000)
+}
+
+// ── UTILS ──
+function mostrarErro(msg) {
+  const el = document.getElementById('form-error')
+  el.textContent = msg
+  el.classList.add('show')
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  const btn = document.getElementById('btn-submit')
+  btn.disabled = false
+  btn.textContent = 'Criar minha memória ♥'
+}
+
+function esconderErro() {
+  document.getElementById('form-error').classList.remove('show')
+}
+
+function showError(msg) {
+  document.getElementById('loading').style.display = 'none'
+  document.getElementById('error-msg').textContent = msg
+  document.getElementById('error-state').classList.add('show')
+}
+
+function copiarLink() {
+  navigator.clipboard.writeText(urlPagina).then(() => {
+    const btn = document.querySelector('.btn-copiar')
+    btn.textContent = 'Copiado!'
+    setTimeout(() => { btn.textContent = 'Copiar link' }, 2000)
+  })
+}
+
+init()
+</script>
+</body>
+</html>
