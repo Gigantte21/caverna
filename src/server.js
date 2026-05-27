@@ -60,16 +60,6 @@ await fastify.register(fastifyStatic, {
   prefix: '/static/'
 })
 
-// Página romântica — serve o HTML e deixa o JS do browser buscar os dados via API
-fastify.get('/p/:slug', async (req, reply) => {
-  return reply.sendFile('pagina.html')
-})
-
-// Formulário — serve o HTML
-fastify.get('/formulario', async (req, reply) => {
-  return reply.sendFile('formulario.html')
-})
-
 // Rate limit mais restrito nas rotas de formulário
 await fastify.register(async (instance) => {
   await instance.register(fastifyRateLimit, {
