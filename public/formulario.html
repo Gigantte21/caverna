@@ -223,7 +223,7 @@ select option { background: var(--deep); }
 
   <div class="form-error" id="form-error"></div>
 
-  <button class="btn-submit" id="btn-submit" onclick="submitForm()">
+  <button class="btn-submit" id="btn-submit">
     Criar minha memória ♥
   </button>
 </main>
@@ -238,6 +238,7 @@ let urlPagina = ''
 
 // ── VERIFICAÇÃO DO TOKEN ──
 async function init() {
+  document.getElementById('btn-submit').addEventListener('click', submitForm)
   if (!token) return showError('Link inválido ou incompleto.')
 
   try {
