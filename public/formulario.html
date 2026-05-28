@@ -366,10 +366,7 @@ async function submitForm() {
 
   } catch (err) {
     mostrarErro('Erro de conexão. Tente novamente.')
-  } finally {
-    btn.disabled = false
-    btn.textContent = 'Criar minha memória ♥'
-  }
+  } 
 }
 
 async function uploadMidias(files, tipo, isCarrossel) {
