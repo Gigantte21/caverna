@@ -138,7 +138,7 @@ select option { background: var(--deep); }
   <p>Sua página está pronta. Guarde o QR Code abaixo e o link para compartilhar.</p>
   <img class="qr-img" id="success-qr" src="" alt="QR Code"/>
   <div class="url-box" id="success-url"></div>
-  <button class="btn-copiar" onclick="copiarLink()">Copiar link</button>
+  <button class="btn-copiar" id="btn-copiar">Copiar link</button>
 </div>
 
 <main id="form-wrap" style="display:none">
@@ -240,6 +240,8 @@ let urlPagina = ''
 async function init() {
   document.getElementById('btn-submit').addEventListener('click', submitForm)
   if (!token) return showError('Link inválido ou incompleto.')
+
+  document.getElementById('btn-copiar').addEventListener('click', copiarLink)
 
   try {
     const res = await fetch(`${API}/formulario/dados?t=${token}`)
