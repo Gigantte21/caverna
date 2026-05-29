@@ -183,7 +183,7 @@ function renderPage({ pagina, carrossel, album }) {
   document.getElementById('hero-title-text').textContent = pagina.titulo_personalizado || ''
 
   if (pagina.data_inicio_relacionamento) {
-    const d = new Date(pagina.data_inicio_relacionamento + 'T00:00:00')
+    const d = new Date(pagina.data_inicio_relacionamento.split('T')[0] + 'T12:00:00')
     document.getElementById('hero-date').textContent =
       'Desde ' + d.toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' })
     document.getElementById('counter-wrap').style.display = 'flex'

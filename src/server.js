@@ -26,7 +26,7 @@ await fastify.register(fastifyHelmet, {
       defaultSrc: ["'self'"],
       imgSrc: ["'self'", "data:", process.env.R2_PUBLIC_URL, "https://i.scdn.co"],
       mediaSrc: ["'self'", process.env.R2_PUBLIC_URL],
-      frameSrc: ["'self'", "https://open.spotify.com"],
+      frameSrc: ["'self'", "https://open.spotify.com", "https://*.spotify.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"]
