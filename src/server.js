@@ -22,16 +22,17 @@ const fastify = Fastify({
 
 await fastify.register(fastifyHelmet, {
   contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", process.env.R2_PUBLIC_URL, "https://i.scdn.co"],
-      mediaSrc: ["'self'", process.env.R2_PUBLIC_URL],
-      frameSrc: ["'self'", "https://open.spotify.com", "https://*.spotify.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"]
-    }
+  directives: {
+    defaultSrc: ["'self'"],
+    imgSrc: ["'self'", "data:", "https://*.r2.dev", "https://pub-708dd0f007bb4c5aa391d840c03b36d6.r2.dev", "https://i.scdn.co"],
+    mediaSrc: ["'self'", "https://*.r2.dev", "https://pub-708dd0f007bb4c5aa391d840c03b36d6.r2.dev"],
+    frameSrc: ["'self'", "https://open.spotify.com", "https://*.spotify.com"],
+    scriptSrc: ["'self'", "'unsafe-inline'"],
+    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+    fontSrc: ["'self'", "https://fonts.gstatic.com"],
+    connectSrc: ["'self'"]
   }
+}
 })
 
 await fastify.register(fastifyRateLimit, {
