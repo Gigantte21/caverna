@@ -64,7 +64,7 @@ await fastify.register(fastifyStatic, {
 // Rate limit mais restrito nas rotas de formulário
 await fastify.register(async (instance) => {
   await instance.register(fastifyRateLimit, {
-    max: 10,
+    max: 54,
     timeWindow: '5 minutes',
     keyGenerator: (req) => req.headers['cf-connecting-ip'] || req.ip
   })
