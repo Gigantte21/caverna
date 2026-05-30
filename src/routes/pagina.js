@@ -32,7 +32,9 @@ export default async function paginaRoutes(fastify) {
       [pagina.id]
     )
     const ip = req.headers['cf-connecting-ip'] || req.ip
-    const origem = req.query.origem || 'link_direto'
+    const origemRaw = req.query.origem || ''
+const origemValidas = ['nfc', 'qrcode', 'link_direto', 'formulario']
+const origem = origemValidas.includes(origemRaw) ? origemRaw : 'link_direto'
     await pool.query(
       `INSERT INTO acesso_log (pagina_id, ip, user_agent, origem) VALUES ($1,$2,$3,$4)`,
       [pagina.id, ip, req.headers['user-agent'] || '', origem]
