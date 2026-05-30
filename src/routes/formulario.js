@@ -120,7 +120,14 @@ export default async function formularioRoutes(fastify) {
         }
       }
 
-      const url = await uploadMidia(part, tipo, paginaId)
+      let url
+try {
+  url = await uploadMidia(part, tipo, paginaId)
+  fastify.log.info({ url }, 'upload ok')
+} catch (uploadErr) {
+  fastify.log.error({ erro: uploadErr.message }, 'erro no upload R2')
+  return reply.code(500).send({ error: `Erro no upload: ${uploadErr.message}` })
+}
       const { rows } = await pool.query(
         `INSERT INTO midia (pagina_id, tipo, url, ordem, legenda, is_carrossel)
          VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
