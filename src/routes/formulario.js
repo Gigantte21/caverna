@@ -74,9 +74,6 @@ export default async function formularioRoutes(fastify) {
 
     const qr = await gerarEsalvarQRCode(pagina.id, slug)
 
-    // NÃO invalida o token aqui — deixa aberto para upload de mídias
-    // Token só expira pelo prazo de 7 dias
-
     const urlPagina = `${process.env.BASE_URL}/p/${slug}`
     return reply.code(201).send({
       pagina,
@@ -89,6 +86,11 @@ export default async function formularioRoutes(fastify) {
   fastify.post('/formulario/midia', { preHandler: formularioAuth }, async (req, reply) => {
     const { chaveiro_id } = req.tokenPayload
 
+    // Lê parâmetros da querystring — mais confiável que multipart fields
+    const tipo = req.query.tipo || 'foto'
+    const isCarrossel = req.query.is_carrossel === 'true'
+    const ordem = parseInt(req.query.ordem || '0')
+
     const { rows: pRows } = await pool.query(
       'SELECT id FROM pagina_romantica WHERE chaveiro_id = $1', [chaveiro_id]
     )
@@ -96,44 +98,36 @@ export default async function formularioRoutes(fastify) {
       return reply.code(404).send({ error: 'Preencha o formulário principal antes de enviar mídias' })
     }
     const paginaId = pRows[0].id
-    const parts = req.parts()
-    const resultados = []
 
-    for await (const part of parts) {
-      if (part.type !== 'file') continue
-
-      const tipo = part.fields?.tipo?.value || 'foto'
-      const legenda = sanitizeText(part.fields?.legenda?.value || '', 255)
-      const isCarrossel = part.fields?.is_carrossel?.value === 'true'
-      const ordem = parseInt(part.fields?.ordem?.value || '0')
-
-      if (isCarrossel) {
-        const { rows: ct } = await pool.query(
-          `SELECT COUNT(*) FROM midia WHERE pagina_id = $1 AND is_carrossel = true`,
-          [paginaId]
-        )
-        if (parseInt(ct[0].count) >= 4) {
-          return reply.code(400).send({ error: 'Máximo de 4 fotos no carrossel atingido' })
-        }
-      }
-
-      let url
-      try {
-        url = await uploadMidia(part, tipo, paginaId)
-        fastify.log.info({ url }, 'upload R2 ok')
-      } catch (uploadErr) {
-        fastify.log.error({ erro: uploadErr.message }, 'erro upload R2')
-        return reply.code(500).send({ error: `Erro no upload: ${uploadErr.message}` })
-      }
-
-      const { rows } = await pool.query(
-        `INSERT INTO midia (pagina_id, tipo, url, ordem, legenda, is_carrossel)
-         VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-        [paginaId, tipo, url, ordem, legenda, isCarrossel]
+    if (isCarrossel) {
+      const { rows: ct } = await pool.query(
+        `SELECT COUNT(*) FROM midia WHERE pagina_id = $1 AND is_carrossel = true`,
+        [paginaId]
       )
-      resultados.push(rows[0])
+      if (parseInt(ct[0].count) >= 4) {
+        return reply.code(400).send({ error: 'Máximo de 4 fotos no carrossel atingido' })
+      }
     }
 
-    return resultados
+    // Pega o arquivo do multipart
+    const data = await req.file()
+    if (!data) return reply.code(400).send({ error: 'Nenhum arquivo enviado' })
+
+    let url
+    try {
+      url = await uploadMidia(data, tipo, paginaId)
+      fastify.log.info({ url, isCarrossel, ordem }, 'upload R2 ok')
+    } catch (uploadErr) {
+      fastify.log.error({ erro: uploadErr.message }, 'erro upload R2')
+      return reply.code(500).send({ error: `Erro no upload: ${uploadErr.message}` })
+    }
+
+    const { rows } = await pool.query(
+      `INSERT INTO midia (pagina_id, tipo, url, ordem, legenda, is_carrossel)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+      [paginaId, tipo, url, ordem, '', isCarrossel]
+    )
+
+    return rows[0]
   })
 }
