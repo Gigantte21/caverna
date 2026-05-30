@@ -251,7 +251,7 @@ function carGoTo(i) {
 function carMove(dir) { carGoTo((carIndex + dir + carSlides.length) % carSlides.length) }
 
 function renderSpotify(url) {
-  const match = url.match(/spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/)
+  const match = url.match(/spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode)\/([a-zA-Z0-9]+)/)
   if (!match) return
   const [, tipo, id] = match
   document.getElementById('spotify-iframe').src =
