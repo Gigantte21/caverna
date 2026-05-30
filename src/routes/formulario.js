@@ -23,7 +23,7 @@ export default async function formularioRoutes(fastify) {
     const { chaveiro_id } = req.tokenPayload
     const body = req.body || {}
 
-    if (!body.termos_aceitos || body.termos_aceitos !== true) {
+    if (!body.termos_aceitos) {
       return reply.code(400).send({ error: 'Aceite dos termos de uso é obrigatório' })
     }
 
@@ -72,13 +72,10 @@ export default async function formularioRoutes(fastify) {
       )
     }
 
-    // Gera QR Code automaticamente após criação da página
     const qr = await gerarEsalvarQRCode(pagina.id, slug)
 
-    await pool.query(
-      `UPDATE link_token SET usado = true WHERE id = $1`,
-      [req.linkTokenId]
-    )
+    // NÃO invalida o token aqui — deixa aberto para upload de mídias
+    // Token só expira pelo prazo de 7 dias
 
     const urlPagina = `${process.env.BASE_URL}/p/${slug}`
     return reply.code(201).send({
@@ -121,13 +118,14 @@ export default async function formularioRoutes(fastify) {
       }
 
       let url
-try {
-  url = await uploadMidia(part, tipo, paginaId)
-  fastify.log.info({ url }, 'upload ok')
-} catch (uploadErr) {
-  fastify.log.error({ erro: uploadErr.message }, 'erro no upload R2')
-  return reply.code(500).send({ error: `Erro no upload: ${uploadErr.message}` })
-}
+      try {
+        url = await uploadMidia(part, tipo, paginaId)
+        fastify.log.info({ url }, 'upload R2 ok')
+      } catch (uploadErr) {
+        fastify.log.error({ erro: uploadErr.message }, 'erro upload R2')
+        return reply.code(500).send({ error: `Erro no upload: ${uploadErr.message}` })
+      }
+
       const { rows } = await pool.query(
         `INSERT INTO midia (pagina_id, tipo, url, ordem, legenda, is_carrossel)
          VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,

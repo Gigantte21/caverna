@@ -30,7 +30,7 @@ export async function formularioAuth(request, reply) {
 
     const token = rows[0]
 
-    if (token.usado) return reply.code(410).send({ error: 'Link já utilizado' })
+    if (token.usado && payload.tipo !== 'formulario') return reply.code(410).send({ error: 'Link já utilizado' })
     if (new Date(token.expira_em) < new Date()) return reply.code(410).send({ error: 'Link expirado' })
     if (token.chaveiro_status !== 'pendente' && token.chaveiro_status !== 'ativo') {
       return reply.code(403).send({ error: 'Chaveiro inativo' })
