@@ -22,17 +22,17 @@ const fastify = Fastify({
 
 await fastify.register(fastifyHelmet, {
   contentSecurityPolicy: {
-  directives: {
-    defaultSrc: ["'self'"],
-    imgSrc: ["'self'", "data:", "https://*.r2.dev", "https://pub-708dd0f007bb4c5aa391d840c03b36d6.r2.dev", "https://i.scdn.co"],
-    mediaSrc: ["'self'", "https://*.r2.dev", "https://pub-708dd0f007bb4c5aa391d840c03b36d6.r2.dev"],
-    frameSrc: ["'self'", "https://open.spotify.com", "https://*.spotify.com"],
-    scriptSrc: ["'self'", "'unsafe-inline'"],
-    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-    fontSrc: ["'self'", "https://fonts.gstatic.com"],
-    connectSrc: ["'self'"]
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https://*.r2.dev", "https://pub-708dd0f007bb4c5aa391d840c03b36d6.r2.dev", "https://i.scdn.co"],
+      mediaSrc: ["'self'", "https://*.r2.dev", "https://pub-708dd0f007bb4c5aa391d840c03b36d6.r2.dev"],
+      frameSrc: ["'self'", "https://open.spotify.com", "https://*.spotify.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'"]
+    }
   }
-}
 })
 
 await fastify.register(fastifyRateLimit, {
@@ -44,7 +44,9 @@ await fastify.register(fastifyRateLimit, {
 })
 
 await fastify.register(fastifyCors, {
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || false
+  origin: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 })
 
 await fastify.register(fastifyJwt, {
@@ -55,24 +57,22 @@ await fastify.register(fastifyMultipart, {
   limits: { fileSize: 20 * 1024 * 1024, files: 20 }
 })
 
-// Serve arquivos estáticos da pasta public
 await fastify.register(fastifyStatic, {
   root: path.join(__dirname, '..', 'public'),
   prefix: '/static/'
 })
 
-// Rate limit mais restrito nas rotas de formulário
+await fastify.register(adminRoutes)
+await fastify.register(paginaRoutes)
+
 await fastify.register(async (instance) => {
   await instance.register(fastifyRateLimit, {
-    max: 54,
+    max: 50,
     timeWindow: '5 minutes',
     keyGenerator: (req) => req.headers['cf-connecting-ip'] || req.ip
   })
   instance.register(formularioRoutes)
 })
-
-await fastify.register(adminRoutes)
-await fastify.register(paginaRoutes)
 
 fastify.get('/health', async () => ({ status: 'ok', ts: new Date().toISOString() }))
 
