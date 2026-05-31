@@ -15,41 +15,38 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sans-serif; font-size: 14px; min-height: 100vh; }
 
+/* LOGIN */
+#login-screen { position: fixed; inset: 0; z-index: 999; background: var(--black); display: flex; align-items: center; justify-content: center; }
+.login-box { background: var(--deep); border: 1px solid rgba(201,168,76,.2); border-radius: 12px; padding: 2rem; width: 320px; text-align: center; }
+.login-box h2 { font-size: 1rem; letter-spacing: .2em; color: var(--gold); margin-bottom: 1.5rem; text-transform: uppercase; }
+.login-box input { width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 6px; padding: .75rem 1rem; color: var(--cream); font-size: .875rem; outline: none; margin-bottom: 1rem; }
+.login-box button { width: 100%; padding: .75rem; background: linear-gradient(135deg, var(--wine), var(--wine-lt)); border: none; border-radius: 6px; color: var(--cream); font-size: .875rem; cursor: pointer; }
+.login-box .erro { color: var(--red); font-size: .75rem; margin-top: .5rem; }
+
 /* HEADER */
 .header { background: var(--deep); border-bottom: 1px solid rgba(201,168,76,.15); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
 .header h1 { font-size: 1rem; letter-spacing: .2em; color: var(--gold); text-transform: uppercase; }
-.header .token-wrap { display: flex; gap: .5rem; align-items: center; }
-.header input { background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 6px; padding: .4rem .75rem; color: var(--cream); width: 320px; font-size: .8rem; outline: none; }
-.header .base-url { background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 6px; padding: .4rem .75rem; color: var(--muted); width: 220px; font-size: .8rem; outline: none; }
+.header .sair { background: none; border: 1px solid rgba(201,168,76,.2); color: var(--muted); border-radius: 4px; padding: .3rem .75rem; cursor: pointer; font-size: .75rem; }
 
 /* LAYOUT */
 .layout { display: grid; grid-template-columns: 340px 1fr; gap: 0; min-height: calc(100vh - 57px); }
-
-/* SIDEBAR */
 .sidebar { background: var(--deep); border-right: 1px solid rgba(201,168,76,.1); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-
 .section-title { font-size: .6rem; letter-spacing: .25em; color: var(--gold-dk); text-transform: uppercase; margin-bottom: .5rem; }
-
 .form-group { margin-bottom: .75rem; }
 .form-group label { display: block; font-size: .7rem; color: var(--muted); margin-bottom: .3rem; }
-.form-group input { width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.15); border-radius: 6px; padding: .5rem .75rem; color: var(--cream); font-size: .8rem; outline: none; transition: border-color .2s; }
+.form-group input { width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.15); border-radius: 6px; padding: .5rem .75rem; color: var(--cream); font-size: .8rem; outline: none; }
 .form-group input:focus { border-color: var(--gold-dk); }
-
-.btn { width: 100%; padding: .65rem; border: none; border-radius: 6px; cursor: pointer; font-size: .8rem; font-weight: 600; letter-spacing: .05em; transition: opacity .2s; }
+.btn { width: 100%; padding: .65rem; border: none; border-radius: 6px; cursor: pointer; font-size: .8rem; font-weight: 600; transition: opacity .2s; }
 .btn:hover { opacity: .85; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 .btn-primary { background: linear-gradient(135deg, var(--wine), var(--wine-lt)); color: var(--cream); }
 .btn-secondary { background: var(--card); color: var(--gold); border: 1px solid rgba(201,168,76,.2); }
 .btn-danger { background: rgba(224,85,85,.15); color: var(--red); border: 1px solid rgba(224,85,85,.2); }
-.btn-green { background: rgba(76,175,125,.15); color: var(--green); border: 1px solid rgba(76,175,125,.2); }
-
 .divider { height: 1px; background: rgba(201,168,76,.08); margin: .5rem 0; }
-
-/* MAIN */
 .main { padding: 1.5rem; overflow-y: auto; }
 
 /* TOAST */
-.toast { position: fixed; top: 1rem; right: 1rem; z-index: 999; display: flex; flex-direction: column; gap: .5rem; }
+.toast { position: fixed; top: 1rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: .5rem; }
 .toast-item { background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 8px; padding: .75rem 1rem; font-size: .8rem; max-width: 320px; animation: slideIn .3s ease; }
 .toast-item.ok { border-color: rgba(76,175,125,.4); color: var(--green); }
 .toast-item.err { border-color: rgba(224,85,85,.4); color: var(--red); }
@@ -59,9 +56,8 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 .link-box { background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 8px; padding: 1rem; margin-top: .75rem; }
 .link-box .label { font-size: .6rem; letter-spacing: .15em; color: var(--gold-dk); text-transform: uppercase; margin-bottom: .4rem; }
 .link-box .url { font-size: .75rem; color: var(--gold-lt); word-break: break-all; margin-bottom: .5rem; cursor: pointer; }
-.link-box .url:hover { text-decoration: underline; }
 .link-box .actions { display: flex; gap: .5rem; }
-.link-box .actions button { flex: 1; padding: .4rem; border: 1px solid rgba(201,168,76,.2); background: transparent; color: var(--gold); border-radius: 4px; cursor: pointer; font-size: .7rem; transition: background .2s; }
+.link-box .actions button { flex: 1; padding: .4rem; border: 1px solid rgba(201,168,76,.2); background: transparent; color: var(--gold); border-radius: 4px; cursor: pointer; font-size: .7rem; }
 .link-box .actions button:hover { background: rgba(201,168,76,.1); }
 
 /* TABLE */
@@ -71,37 +67,29 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 .table-wrap td { padding: .6rem 1rem; font-size: .8rem; border-bottom: 1px solid rgba(255,255,255,.03); vertical-align: middle; }
 .table-wrap tr:last-child td { border-bottom: none; }
 .table-wrap tr:hover td { background: rgba(255,255,255,.02); }
-
 .badge { display: inline-block; padding: .2rem .5rem; border-radius: 4px; font-size: .65rem; font-weight: 600; }
 .badge-pendente { background: rgba(201,168,76,.15); color: var(--gold); }
 .badge-ativo { background: rgba(76,175,125,.15); color: var(--green); }
 .badge-bloqueado { background: rgba(224,85,85,.15); color: var(--red); }
 .badge-cancelado { background: rgba(100,100,100,.2); color: var(--muted); }
-
 .table-actions { display: flex; gap: .4rem; }
 .table-actions button { padding: .3rem .6rem; border-radius: 4px; border: none; cursor: pointer; font-size: .7rem; font-weight: 600; }
 .btn-ativar { background: rgba(76,175,125,.2); color: var(--green); }
 .btn-bloquear { background: rgba(224,85,85,.2); color: var(--red); }
 .btn-link { background: rgba(201,168,76,.1); color: var(--gold); }
 .btn-logs { background: rgba(100,100,100,.2); color: var(--muted); }
-
 .tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(201,168,76,.1); margin-bottom: 1.5rem; }
-.tab { padding: .6rem 1.25rem; cursor: pointer; font-size: .8rem; color: var(--muted); border-bottom: 2px solid transparent; transition: color .2s; }
+.tab { padding: .6rem 1.25rem; cursor: pointer; font-size: .8rem; color: var(--muted); border-bottom: 2px solid transparent; }
 .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-
 .logs-wrap { background: var(--deep); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: .75rem; max-height: 400px; overflow-y: auto; }
 .log-row { padding: .3rem 0; border-bottom: 1px solid rgba(255,255,255,.03); display: grid; grid-template-columns: 140px 80px 1fr 120px; gap: .5rem; }
 .log-row:last-child { border-bottom: none; }
 .log-ts { color: var(--muted); }
-.log-origem { }
 .log-ip { color: var(--muted); font-size: .7rem; }
 .origem-nfc { color: var(--gold); }
 .origem-qrcode { color: #7eb8e2; }
 .origem-link_direto { color: var(--muted); }
-
 .empty { text-align: center; padding: 3rem; color: var(--muted); font-size: .85rem; }
-.qr-preview { width: 120px; height: 120px; border: 1px solid rgba(201,168,76,.2); border-radius: 6px; }
-
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
 .stat-card { background: var(--card); border: 1px solid rgba(201,168,76,.1); border-radius: 8px; padding: 1rem; text-align: center; }
 .stat-num { font-size: 1.75rem; font-weight: 700; color: var(--gold); display: block; }
@@ -112,116 +100,129 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 
 <div class="toast" id="toast"></div>
 
-<div class="header">
-  <h1>⛏ Caverna · Admin</h1>
-  <div class="token-wrap">
-    <input id="base-url" class="base-url" placeholder="https://memorias.eulimaricardo.com.br" value="https://memorias.eulimaricardo.com.br"/>
-    <input id="admin-token" type="password" placeholder="Admin Token"/>
-    <button class="btn btn-secondary" style="width:auto;padding:.4rem .75rem" onclick="salvarConfig()">Salvar</button>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>⛏ Caverna Admin</h2>
+    <input id="input-token" type="password" placeholder="Admin Token" />
+    <button onclick="fazerLogin()">Entrar</button>
+    <div class="erro" id="login-erro"></div>
   </div>
 </div>
 
-<div class="layout">
-  <div class="sidebar">
-    <div>
-      <div class="section-title">Nova venda</div>
-
-      <div class="form-group">
-        <label>Nome do comprador</label>
-        <input id="f-nome" placeholder="João Silva"/>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input id="f-email" type="email" placeholder="joao@email.com"/>
-      </div>
-      <div class="form-group">
-        <label>Telefone</label>
-        <input id="f-tel" placeholder="11999999999"/>
-      </div>
-      <div class="form-group">
-        <label>Método de pagamento</label>
-        <input id="f-metodo" placeholder="pix" value="pix"/>
-      </div>
-      <div class="form-group">
-        <label>Valor pago (R$)</label>
-        <input id="f-valor" type="number" placeholder="27.90" value="27.90"/>
-      </div>
-
-      <button class="btn btn-primary" id="btn-venda" onclick="criarVenda()">
-        ♥ Registrar venda e gerar link
-      </button>
-
-      <div id="resultado-venda" style="display:none"></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div>
-      <div class="section-title">Ações rápidas</div>
-      <div style="display:flex;flex-direction:column;gap:.5rem">
-        <button class="btn btn-secondary" onclick="carregarChaveiros()">↻ Atualizar lista</button>
-        <button class="btn btn-danger" onclick="confirmarLimpeza()">🗑 Limpar dados de teste</button>
-      </div>
-    </div>
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="header">
+    <h1>⛏ Caverna · Admin</h1>
+    <button class="sair" onclick="sair()">Sair</button>
   </div>
 
-  <div class="main">
-    <div class="tabs">
-      <div class="tab active" onclick="showTab('chaveiros')">Chaveiros</div>
-      <div class="tab" onclick="showTab('logs')">Logs de acesso</div>
-    </div>
-
-    <div id="tab-chaveiros">
-      <div class="stats" id="stats">
-        <div class="stat-card"><span class="stat-num" id="s-total">-</span><span class="stat-lbl">Total</span></div>
-        <div class="stat-card"><span class="stat-num" id="s-ativos">-</span><span class="stat-lbl">Ativos</span></div>
-        <div class="stat-card"><span class="stat-num" id="s-pendentes">-</span><span class="stat-lbl">Pendentes</span></div>
-        <div class="stat-card"><span class="stat-num" id="s-bloqueados">-</span><span class="stat-lbl">Bloqueados</span></div>
+  <div class="layout">
+    <div class="sidebar">
+      <div>
+        <div class="section-title">Nova venda</div>
+        <div class="form-group"><label>Nome do comprador</label><input id="f-nome" placeholder="João Silva"/></div>
+        <div class="form-group"><label>Email</label><input id="f-email" type="email" placeholder="joao@email.com"/></div>
+        <div class="form-group"><label>Telefone</label><input id="f-tel" placeholder="11999999999"/></div>
+        <div class="form-group"><label>Método de pagamento</label><input id="f-metodo" value="pix"/></div>
+        <div class="form-group"><label>Valor pago (R$)</label><input id="f-valor" type="number" value="27.90"/></div>
+        <button class="btn btn-primary" id="btn-venda" onclick="criarVenda()">♥ Registrar venda e gerar link</button>
+        <div id="resultado-venda" style="display:none"></div>
       </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Comprador</th>
-              <th>Status</th>
-              <th>Página</th>
-              <th>Criado em</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-chaveiros">
-            <tr><td colspan="6" class="empty">Carregando...</td></tr>
-          </tbody>
-        </table>
+      <div class="divider"></div>
+
+      <div>
+        <div class="section-title">Ações rápidas</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <button class="btn btn-secondary" onclick="carregarChaveiros()">↻ Atualizar lista</button>
+          <button class="btn btn-danger" onclick="confirmarLimpeza()">🗑 Limpar dados de teste</button>
+        </div>
       </div>
     </div>
 
-    <div id="tab-logs" style="display:none">
-      <div class="logs-wrap" id="logs-container">
-        <div class="empty">Selecione um chaveiro para ver os logs</div>
+    <div class="main">
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('chaveiros')">Chaveiros</div>
+        <div class="tab" onclick="showTab('logs')">Logs de acesso</div>
+      </div>
+
+      <div id="tab-chaveiros">
+        <div class="stats" id="stats">
+          <div class="stat-card"><span class="stat-num" id="s-total">-</span><span class="stat-lbl">Total</span></div>
+          <div class="stat-card"><span class="stat-num" id="s-ativos">-</span><span class="stat-lbl">Ativos</span></div>
+          <div class="stat-card"><span class="stat-num" id="s-pendentes">-</span><span class="stat-lbl">Pendentes</span></div>
+          <div class="stat-card"><span class="stat-num" id="s-bloqueados">-</span><span class="stat-lbl">Bloqueados</span></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th><th>Comprador</th><th>Status</th><th>Página</th><th>Criado em</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-chaveiros">
+              <tr><td colspan="6" class="empty">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tab-logs" style="display:none">
+        <div class="logs-wrap" id="logs-container">
+          <div class="empty">Selecione um chaveiro para ver os logs</div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ── CONFIG ──
-let BASE = localStorage.getItem('caverna-url') || 'https://memorias.eulimaricardo.com.br'
-let TOKEN = localStorage.getItem('caverna-token') || ''
+const BASE = 'https://memorias.eulimaricardo.com.br'
+let TOKEN = ''
 
-document.getElementById('base-url').value = BASE
-document.getElementById('admin-token').value = TOKEN
+// ── LOGIN ──
+async function fazerLogin() {
+  const t = document.getElementById('input-token').value.trim()
+  if (!t) return
 
-function salvarConfig() {
-  BASE = document.getElementById('base-url').value.replace(/\/$/, '')
-  TOKEN = document.getElementById('admin-token').value
-  localStorage.setItem('caverna-url', BASE)
-  localStorage.setItem('caverna-token', TOKEN)
-  toast('Configuração salva!', 'ok')
-  carregarChaveiros()
+  try {
+    const res = await fetch(`${BASE}/admin/chaveiros`, {
+      headers: { 'Authorization': `Bearer ${t}` }
+    })
+    if (res.status === 401) {
+      document.getElementById('login-erro').textContent = 'Token inválido.'
+      return
+    }
+    TOKEN = t
+    sessionStorage.setItem('caverna-token', t)
+    document.getElementById('login-screen').style.display = 'none'
+    document.getElementById('app').style.display = 'block'
+    carregarChaveiros()
+  } catch {
+    document.getElementById('login-erro').textContent = 'Erro de conexão.'
+  }
 }
+
+function sair() {
+  TOKEN = ''
+  sessionStorage.removeItem('caverna-token')
+  document.getElementById('login-screen').style.display = 'flex'
+  document.getElementById('app').style.display = 'none'
+  document.getElementById('input-token').value = ''
+}
+
+// Tenta restaurar sessão
+const saved = sessionStorage.getItem('caverna-token')
+if (saved) {
+  document.getElementById('input-token').value = saved
+  fazerLogin()
+}
+
+// Enter no campo de token
+document.getElementById('input-token').addEventListener('keydown', e => {
+  if (e.key === 'Enter') fazerLogin()
+})
 
 // ── API ──
 async function api(method, path, body) {
@@ -263,17 +264,13 @@ async function criarVenda() {
   const valor = parseFloat(document.getElementById('f-valor').value)
 
   if (!nome || !email) return toast('Nome e email são obrigatórios', 'err')
-  if (!TOKEN) return toast('Configure o Admin Token primeiro', 'err')
 
   const btn = document.getElementById('btn-venda')
   btn.disabled = true
   btn.textContent = 'Criando...'
 
   try {
-    // 1. Cria chaveiro
     const chaveiro = await api('POST', '/admin/chaveiros', {})
-
-    // 2. Registra pedido e gera link
     const pedido = await api('POST', `/admin/chaveiros/${chaveiro.id}/pedido`, {
       nome_comprador: nome,
       email_comprador: email,
@@ -288,23 +285,23 @@ async function criarVenda() {
     resultado.innerHTML = `
       <div class="link-box">
         <div class="label">Link do formulário — envie ao cliente</div>
-        <div class="url" onclick="copiar('${link}')" title="Clique para copiar">${link}</div>
+        <div class="url" id="link-gerado">${link}</div>
         <div class="actions">
-          <button onclick="copiar('${link}')">📋 Copiar</button>
-          <button onclick="window.open('${link}','_blank')">🔗 Abrir</button>
-          <button onclick="whatsapp('${link}','${nome}')">💬 WhatsApp</button>
+          <button id="btn-copiar-link">📋 Copiar</button>
+          <button id="btn-abrir-link">🔗 Abrir</button>
+          <button id="btn-whatsapp-link">💬 WhatsApp</button>
         </div>
       </div>
     `
+    document.getElementById('btn-copiar-link').addEventListener('click', () => copiar(link))
+    document.getElementById('btn-abrir-link').addEventListener('click', () => window.open(link, '_blank'))
+    document.getElementById('btn-whatsapp-link').addEventListener('click', () => whatsapp(link, nome))
 
     toast(`Venda registrada para ${nome}!`, 'ok')
     carregarChaveiros()
-
-    // Limpa form
     document.getElementById('f-nome').value = ''
     document.getElementById('f-email').value = ''
     document.getElementById('f-tel').value = ''
-
   } catch (err) {
     toast(err.message, 'err')
   } finally {
@@ -315,30 +312,24 @@ async function criarVenda() {
 
 // ── CARREGAR CHAVEIROS ──
 async function carregarChaveiros() {
-  if (!TOKEN) return
   try {
     const lista = await api('GET', '/admin/chaveiros')
-
-    const total = lista.length
-    const ativos = lista.filter(c => c.status === 'ativo').length
-    const pendentes = lista.filter(c => c.status === 'pendente').length
-    const bloqueados = lista.filter(c => c.status === 'bloqueado').length
-
-    document.getElementById('s-total').textContent = total
-    document.getElementById('s-ativos').textContent = ativos
-    document.getElementById('s-pendentes').textContent = pendentes
-    document.getElementById('s-bloqueados').textContent = bloqueados
+    document.getElementById('s-total').textContent = lista.length
+    document.getElementById('s-ativos').textContent = lista.filter(c => c.status === 'ativo').length
+    document.getElementById('s-pendentes').textContent = lista.filter(c => c.status === 'pendente').length
+    document.getElementById('s-bloqueados').textContent = lista.filter(c => c.status === 'bloqueado').length
 
     const tbody = document.getElementById('tabela-chaveiros')
-
     if (!lista.length) {
       tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum chaveiro cadastrado</td></tr>'
       return
     }
 
-    tbody.innerHTML = lista.map(c => `
-      <tr>
-        <td style="font-family:monospace;font-size:.7rem">${c.codigo_unico?.slice(0,12)}...</td>
+    tbody.innerHTML = ''
+    lista.forEach(c => {
+      const tr = document.createElement('tr')
+      tr.innerHTML = `
+        <td style="font-family:monospace;font-size:.7rem">${(c.codigo_unico || '').slice(0,12)}...</td>
         <td>${c.nome_comprador || '<span style="color:var(--muted)">—</span>'}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>${c.slug_url
@@ -348,20 +339,29 @@ async function carregarChaveiros() {
         <td style="font-size:.75rem;color:var(--muted)">${new Date(c.criado_em).toLocaleString('pt-BR')}</td>
         <td>
           <div class="table-actions">
-            ${c.status !== 'ativo' ? `<button class="btn-ativar" onclick="mudarStatus('${c.id}','ativo')">Ativar</button>` : ''}
-            ${c.status === 'ativo' ? `<button class="btn-bloquear" onclick="mudarStatus('${c.id}','bloqueado')">Bloquear</button>` : ''}
-            <button class="btn-link" onclick="gerarNovoLink('${c.id}')">Link</button>
-            <button class="btn-logs" onclick="verLogs('${c.id}')">Logs</button>
+            ${c.status !== 'ativo' ? `<button class="btn-ativar" data-id="${c.id}" data-action="ativar">Ativar</button>` : ''}
+            ${c.status === 'ativo' ? `<button class="btn-bloquear" data-id="${c.id}" data-action="bloquear">Bloquear</button>` : ''}
+            <button class="btn-logs" data-id="${c.id}" data-action="logs">Logs</button>
           </div>
         </td>
-      </tr>
-    `).join('')
+      `
+      tbody.appendChild(tr)
+    })
+
+    tbody.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id
+        const action = btn.dataset.action
+        if (action === 'ativar') mudarStatus(id, 'ativo')
+        else if (action === 'bloquear') mudarStatus(id, 'bloqueado')
+        else if (action === 'logs') verLogs(id)
+      })
+    })
   } catch (err) {
     toast(err.message, 'err')
   }
 }
 
-// ── MUDAR STATUS ──
 async function mudarStatus(id, status) {
   try {
     await api('PATCH', `/admin/chaveiros/${id}/status`, { status })
@@ -372,40 +372,20 @@ async function mudarStatus(id, status) {
   }
 }
 
-// ── GERAR NOVO LINK ──
-async function gerarNovoLink(id) {
-  try {
-    const pedido = await api('POST', `/admin/chaveiros/${id}/pedido`, {
-      nome_comprador: 'Reenvio',
-      email_comprador: 'reenvio@caverna.com',
-      telefone: '',
-      metodo_pagamento: 'pix',
-      valor_pago: 0
-    })
-    copiar(pedido.link_formulario)
-    toast('Novo link copiado!', 'ok')
-  } catch (err) {
-    toast(err.message, 'err')
-  }
-}
-
-// ── VER LOGS ──
 async function verLogs(id) {
   showTab('logs')
   try {
     const logs = await api('GET', `/admin/chaveiros/${id}/logs`)
     const container = document.getElementById('logs-container')
-
     if (!logs.length) {
       container.innerHTML = '<div class="empty">Nenhum acesso registrado ainda</div>'
       return
     }
-
     container.innerHTML = logs.map(l => `
       <div class="log-row">
         <span class="log-ts">${new Date(l.acessado_em).toLocaleString('pt-BR')}</span>
-        <span class="log-origem origem-${l.origem}">${l.origem}</span>
-        <span>${l.user_agent?.slice(0,60) || '—'}</span>
+        <span class="origem-${l.origem}">${l.origem}</span>
+        <span>${(l.user_agent || '').slice(0,60) || '—'}</span>
         <span class="log-ip">${l.ip || '—'}</span>
       </div>
     `).join('')
@@ -414,7 +394,6 @@ async function verLogs(id) {
   }
 }
 
-// ── UTILS ──
 function copiar(texto) {
   navigator.clipboard.writeText(texto).then(() => toast('Link copiado!', 'ok'))
 }
@@ -430,9 +409,6 @@ function confirmarLimpeza() {
     .then(() => { toast('Dados limpos!', 'ok'); carregarChaveiros() })
     .catch(err => toast(err.message, 'err'))
 }
-
-// ── INIT ──
-if (TOKEN) carregarChaveiros()
 </script>
 </body>
 </html>
