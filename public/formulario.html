@@ -8,84 +8,105 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root {
-  --black: #0a0806; --deep: #110d0a; --card: #1a1410;
-  --wine: #6b1a2a; --gold: #c9a84c; --gold-lt: #e2c97e; --gold-dk: #8a6b28;
-  --cream: #f0e6d3; --muted: #8a7a6a; --text: #e8ddd0;
-  --error: #e05555; --success: #4caf7d;
+  --black:#0a0806;--deep:#110d0a;--card:#1a1410;
+  --wine:#6b1a2a;--wine-lt:#8b2a3f;
+  --gold:#c9a84c;--gold-lt:#e2c97e;--gold-dk:#8a6b28;
+  --cream:#f0e6d3;--muted:#8a7a6a;--text:#e8ddd0;
+  --error:#e05555;--green:#4caf7d;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { background: var(--black); color: var(--text); font-family: 'Inter', sans-serif; font-weight: 300; min-height: 100dvh; }
-#loading { position: fixed; inset: 0; z-index: 99; background: var(--black); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; transition: opacity .5s; }
-#loading.hide { opacity: 0; pointer-events: none; }
-.ring { width: 44px; height: 44px; border: 2px solid var(--gold-dk); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-txt { font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: .25em; color: var(--gold-dk); text-transform: uppercase; }
-#success { display: none; position: fixed; inset: 0; z-index: 98; background: var(--black); flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; padding: 2rem; text-align: center; }
-#success.show { display: flex; }
-#success .s-icon { font-size: 3rem; }
-#success h2 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.25rem; letter-spacing: .1em; }
-#success p { color: var(--muted); font-size: .875rem; max-width: 300px; line-height: 1.6; }
-#success .qr-img { width: 180px; height: 180px; border: 2px solid var(--gold-dk); border-radius: 8px; object-fit: contain; background: var(--cream); }
-#success .url-box { background: var(--card); border: 1px solid rgba(201,168,76,.2); border-radius: 6px; padding: .75rem 1rem; font-size: .8rem; color: var(--gold-lt); word-break: break-all; max-width: 320px; }
-#success .btn-copiar { background: var(--wine); color: var(--cream); border: none; border-radius: 6px; padding: .75rem 2rem; font-family: 'Cinzel', serif; font-size: .75rem; letter-spacing: .1em; cursor: pointer; }
-#error-state { display: none; position: fixed; inset: 0; z-index: 97; background: var(--black); flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 2rem; text-align: center; }
-#error-state.show { display: flex; }
-#error-state h2 { font-family: 'Cinzel', serif; color: var(--error); }
-#error-state p { color: var(--muted); font-size: .875rem; max-width: 280px; }
-main { max-width: 480px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
-header { text-align: center; margin-bottom: 2.5rem; padding-top: 1rem; }
-.logo-mark { font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: .3em; color: var(--gold-dk); text-transform: uppercase; display: block; margin-bottom: .75rem; }
-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 300; color: var(--cream); }
-header h1 em { font-style: italic; color: var(--gold-lt); }
-header p { margin-top: .5rem; font-size: .8rem; color: var(--muted); }
-.step { margin-bottom: 2rem; }
-.step-label { font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: .25em; color: var(--gold-dk); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: .75rem; }
-.step-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-dk), transparent); }
-.field { margin-bottom: 1.25rem; }
-label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: .4rem; letter-spacing: .05em; }
-label span { color: var(--wine); }
-input[type=text], input[type=date], input[type=url], textarea {
-  width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.15);
-  border-radius: 6px; padding: .75rem 1rem; color: var(--cream);
-  font-family: 'Inter', sans-serif; font-size: .875rem; font-weight: 300;
-  outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;min-height:100dvh;}
+
+#loading{position:fixed;inset:0;z-index:99;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;transition:opacity .5s;}
+#loading.hide{opacity:0;pointer-events:none;}
+.ring{width:44px;height:44px;border:2px solid var(--gold-dk);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-txt{font-family:'Cinzel',serif;font-size:.65rem;letter-spacing:.25em;color:var(--gold-dk);text-transform:uppercase;}
+
+#success{display:none;position:fixed;inset:0;z-index:98;background:var(--black);flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:2rem;text-align:center;}
+#success.show{display:flex;}
+#success .s-icon{font-size:3rem;}
+#success h2{font-family:'Cinzel',serif;color:var(--gold);font-size:1.25rem;letter-spacing:.1em;}
+#success p{color:var(--muted);font-size:.875rem;max-width:300px;line-height:1.6;}
+#success .qr-img{width:180px;height:180px;border:2px solid var(--gold-dk);border-radius:8px;object-fit:contain;background:var(--cream);}
+#success .url-box{background:var(--card);border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:.75rem 1rem;font-size:.8rem;color:var(--gold-lt);word-break:break-all;max-width:320px;}
+#success .btn-copiar{background:var(--wine);color:var(--cream);border:none;border-radius:6px;padding:.75rem 2rem;font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.1em;cursor:pointer;}
+
+#error-state{display:none;position:fixed;inset:0;z-index:97;background:var(--black);flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;text-align:center;}
+#error-state.show{display:flex;}
+#error-state h2{font-family:'Cinzel',serif;color:var(--error);}
+#error-state p{color:var(--muted);font-size:.875rem;max-width:280px;}
+
+main{max-width:480px;margin:0 auto;padding:2rem 1.25rem 5rem;}
+header{text-align:center;margin-bottom:2.5rem;padding-top:1rem;}
+.logo-mark{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.3em;color:var(--gold-dk);text-transform:uppercase;display:block;margin-bottom:.75rem;}
+header h1{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:300;color:var(--cream);}
+header h1 em{font-style:italic;color:var(--gold-lt);}
+header p{margin-top:.5rem;font-size:.8rem;color:var(--muted);}
+
+.step{margin-bottom:2rem;}
+.step-label{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.25em;color:var(--gold-dk);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;}
+.step-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dk),transparent);}
+
+.field{margin-bottom:1.25rem;}
+label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.05em;}
+label span{color:var(--wine);}
+input[type=text],input[type=date],input[type=url],input[type=email],textarea,select{
+  width:100%;background:var(--card);border:1px solid rgba(201,168,76,.15);
+  border-radius:6px;padding:.75rem 1rem;color:var(--cream);
+  font-family:'Inter',sans-serif;font-size:.875rem;font-weight:300;
+  outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;
 }
-input[type=date] { color-scheme: dark; }
-input:focus, textarea:focus { border-color: var(--gold-dk); }
-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
-.field-hint { font-size: .7rem; color: var(--muted); margin-top: .3rem; }
-.upload-area { border: 1px dashed rgba(201,168,76,.25); border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; position: relative; }
-.upload-area:hover, .upload-area.drag { border-color: var(--gold); background: rgba(201,168,76,.04); }
-.upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.upload-icon { font-size: 1.5rem; margin-bottom: .5rem; display: block; }
-.upload-txt { font-size: .8rem; color: var(--muted); }
-.upload-txt strong { color: var(--gold-lt); }
-.preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin-top: .75rem; }
-.preview-item { aspect-ratio: 1; border-radius: 4px; overflow: hidden; position: relative; background: var(--deep); }
-.preview-item img { width: 100%; height: 100%; object-fit: cover; }
-.preview-item .rm { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; background: rgba(10,8,6,.8); border-radius: 50%; border: none; color: var(--cream); font-size: .6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.upload-progress { margin-top: .5rem; }
-.progress-bar { height: 3px; background: var(--deep); border-radius: 2px; overflow: hidden; margin-top: .3rem; }
-.progress-fill { height: 100%; background: var(--gold); width: 0%; transition: width .3s; }
-.progress-txt { font-size: .65rem; color: var(--muted); }
-.termos-wrap { display: flex; align-items: flex-start; gap: .75rem; margin-top: 1rem; }
-.termos-wrap input[type=checkbox] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--wine); margin-top: 2px; cursor: pointer; }
-.termos-txt { font-size: .75rem; color: var(--muted); line-height: 1.5; }
-.termos-txt a { color: var(--gold-dk); text-decoration: underline; }
-.btn-submit { width: 100%; padding: 1rem; margin-top: 1.5rem; background: linear-gradient(135deg, var(--wine), #8b2a3f); border: none; border-radius: 8px; font-family: 'Cinzel', serif; font-size: .8rem; letter-spacing: .15em; color: var(--cream); cursor: pointer; transition: opacity .2s, transform .1s; text-transform: uppercase; }
-.btn-submit:active { transform: scale(.98); }
-.btn-submit:disabled { opacity: .4; cursor: not-allowed; }
-.form-error { background: rgba(224,85,85,.1); border: 1px solid rgba(224,85,85,.3); border-radius: 6px; padding: .75rem 1rem; font-size: .8rem; color: var(--error); margin-top: 1rem; display: none; }
-.form-error.show { display: block; }
+input[type=date]{color-scheme:dark;}
+input:focus,textarea:focus,select:focus{border-color:var(--gold-dk);}
+textarea{resize:vertical;min-height:120px;line-height:1.6;}
+select option{background:var(--deep);}
+.field-hint{font-size:.7rem;color:var(--muted);margin-top:.3rem;}
+
+/* UPLOAD */
+.upload-area{border:1px dashed rgba(201,168,76,.25);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
+.upload-area:hover,.upload-area.drag{border-color:var(--gold);background:rgba(201,168,76,.04);}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-icon{font-size:1.5rem;margin-bottom:.5rem;display:block;}
+.upload-txt{font-size:.8rem;color:var(--muted);}
+.upload-txt strong{color:var(--gold-lt);}
+.preview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.75rem;}
+.preview-item{aspect-ratio:1;border-radius:4px;overflow:hidden;position:relative;background:var(--deep);}
+.preview-item img{width:100%;height:100%;object-fit:cover;}
+.preview-item .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(10,8,6,.8);border-radius:50%;border:none;color:var(--cream);font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.upload-progress{margin-top:.5rem;}
+.progress-bar{height:3px;background:var(--deep);border-radius:2px;overflow:hidden;margin-top:.3rem;}
+.progress-fill{height:100%;background:var(--gold);width:0%;transition:width .3s;}
+.progress-txt{font-size:.65rem;color:var(--muted);}
+
+/* TIMELINE */
+.timeline-lista{display:flex;flex-direction:column;gap:.75rem;margin-bottom:.75rem;}
+.timeline-ev{background:var(--card);border:1px solid rgba(201,168,76,.12);border-radius:8px;padding:1rem;position:relative;}
+.timeline-ev-fields{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem;}
+.timeline-ev-fields input{margin-bottom:0;}
+.timeline-ev textarea{min-height:60px;}
+.timeline-ev .rm-ev{position:absolute;top:.6rem;right:.6rem;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:.2rem;}
+.btn-add-ev{width:100%;padding:.6rem;background:transparent;border:1px dashed rgba(201,168,76,.25);border-radius:6px;color:var(--gold-dk);font-size:.8rem;cursor:pointer;transition:border-color .2s,background .2s;}
+.btn-add-ev:hover{border-color:var(--gold);background:rgba(201,168,76,.04);}
+
+/* TERMOS */
+.termos-wrap{display:flex;align-items:flex-start;gap:.75rem;margin-top:1rem;}
+.termos-wrap input[type=checkbox]{width:18px;height:18px;flex-shrink:0;accent-color:var(--wine);margin-top:2px;cursor:pointer;}
+.termos-txt{font-size:.75rem;color:var(--muted);line-height:1.5;}
+.termos-txt a{color:var(--gold-dk);text-decoration:underline;}
+
+.btn-submit{width:100%;padding:1rem;margin-top:1.5rem;background:linear-gradient(135deg,var(--wine),#8b2a3f);border:none;border-radius:8px;font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.15em;color:var(--cream);cursor:pointer;transition:opacity .2s,transform .1s;text-transform:uppercase;}
+.btn-submit:active{transform:scale(.98);}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;}
+
+.form-error{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.3);border-radius:6px;padding:.75rem 1rem;font-size:.8rem;color:var(--error);margin-top:1rem;display:none;}
+.form-error.show{display:block;}
 </style>
 </head>
 <body>
 
-<div id="loading">
-  <div class="ring"></div>
-  <span class="loading-txt">Verificando seu acesso</span>
-</div>
+<div id="loading"><div class="ring"></div><span class="loading-txt">Verificando seu acesso</span></div>
 
 <div id="error-state">
   <h2>Link inválido</h2>
@@ -108,6 +129,7 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
     <p>Preencha com carinho — isso vai durar para sempre.</p>
   </header>
 
+  <!-- 1. HISTÓRIA -->
   <div class="step">
     <div class="step-label">1 · Sua história</div>
     <div class="field">
@@ -118,30 +140,36 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
     <div class="field">
       <label>Data em que ficaram juntos <span>*</span></label>
       <input type="date" id="data"/>
-      <div class="field-hint">Usamos para calcular o contador de tempo.</div>
     </div>
     <div class="field">
       <label>Mensagem especial <span>*</span></label>
       <textarea id="mensagem" maxlength="2000" placeholder="Escreva o que sente..."></textarea>
     </div>
+    <div class="field">
+      <label>Mensagem de encerramento</label>
+      <input type="text" id="encerramento" maxlength="500" placeholder="Obrigado por fazer parte da minha história."/>
+      <div class="field-hint">Aparece no final da página. Opcional.</div>
+    </div>
   </div>
 
+  <!-- 2. FOTOS DESTAQUE -->
   <div class="step">
-    <div class="step-label">2 · Fotos do carrossel</div>
-    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Até 4 fotos — aparecem em destaque no topo da página.</p>
+    <div class="step-label">2 · Fotos em destaque</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Até 4 fotos — aparecem no topo da página em galeria.</p>
     <div class="upload-area" id="drop-carrossel">
-      <input type="file" id="input-carrossel" accept="image/jpeg,image/png,image/webp" multiple/>
+      <input type="file" id="input-carrossel" accept="image/jpeg,image/png,image/webp,image/heic" multiple/>
       <span class="upload-icon">🖼</span>
       <div class="upload-txt"><strong>Toque para escolher</strong> ou arraste aqui<br/>JPG, PNG, WebP · máx. 20MB cada</div>
     </div>
     <div class="preview-grid" id="preview-carrossel"></div>
   </div>
 
+  <!-- 3. ÁLBUM -->
   <div class="step">
     <div class="step-label">3 · Álbum de fotos</div>
-    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Ilimitado — galeria completa na parte inferior da página.</p>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Até 30 fotos no total — galeria completa na página.</p>
     <div class="upload-area" id="drop-album">
-      <input type="file" id="input-album" accept="image/jpeg,image/png,image/webp" multiple/>
+      <input type="file" id="input-album" accept="image/jpeg,image/png,image/webp,image/heic" multiple/>
       <span class="upload-icon">📸</span>
       <div class="upload-txt"><strong>Toque para escolher</strong> ou arraste aqui</div>
     </div>
@@ -152,15 +180,49 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
     </div>
   </div>
 
+  <!-- 4. VÍDEO -->
   <div class="step">
-    <div class="step-label">4 · Música (opcional)</div>
+    <div class="step-label">4 · Vídeo (opcional)</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">1 vídeo · máx. 25MB · máx. 60 segundos</p>
+    <div class="upload-area" id="drop-video">
+      <input type="file" id="input-video" accept="video/mp4,video/quicktime"/>
+      <span class="upload-icon">🎬</span>
+      <div class="upload-txt"><strong>Toque para escolher</strong><br/>MP4 ou MOV · máx. 25MB</div>
+    </div>
+    <div id="preview-video" style="margin-top:.5rem;font-size:.75rem;color:var(--gold-lt)"></div>
+  </div>
+
+  <!-- 5. ÁUDIO -->
+  <div class="step">
+    <div class="step-label">5 · Mensagem de voz (opcional)</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">1 arquivo · MP3 ou M4A · máx. 5MB</p>
+    <div class="upload-area" id="drop-audio">
+      <input type="file" id="input-audio" accept="audio/mpeg,audio/mp4,audio/x-m4a"/>
+      <span class="upload-icon">🎙</span>
+      <div class="upload-txt"><strong>Toque para escolher</strong><br/>MP3 ou M4A · máx. 5MB</div>
+    </div>
+    <div id="preview-audio" style="margin-top:.5rem;font-size:.75rem;color:var(--gold-lt)"></div>
+  </div>
+
+  <!-- 6. SPOTIFY -->
+  <div class="step">
+    <div class="step-label">6 · Música (opcional)</div>
     <div class="field">
-      <label>Link da música no Spotify</label>
+      <label>Link do Spotify</label>
       <input type="url" id="spotify-url" placeholder="https://open.spotify.com/track/..."/>
-      <div class="field-hint">Cole o link de qualquer track, playlist ou álbum do Spotify.</div>
+      <div class="field-hint">Cole o link de qualquer track, playlist ou álbum.</div>
     </div>
   </div>
 
+  <!-- 7. TIMELINE -->
+  <div class="step">
+    <div class="step-label">7 · Linha do tempo (opcional)</div>
+    <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Adicione momentos especiais da história de vocês.</p>
+    <div class="timeline-lista" id="timeline-lista"></div>
+    <button class="btn-add-ev" id="btn-add-ev">+ Adicionar momento</button>
+  </div>
+
+  <!-- TERMOS -->
   <div class="termos-wrap">
     <input type="checkbox" id="termos"/>
     <span class="termos-txt">
@@ -177,21 +239,23 @@ textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
 <script>
 const token = new URLSearchParams(location.search).get('t')
 const API = ''
-let carrosselFiles = []
-let albumFiles = []
+let carrosselFiles = [], albumFiles = []
+let videoFile = null, audioFile = null
 let urlPagina = ''
+let eventoCount = 0
 
+// ── INIT ──
 async function init() {
   document.getElementById('btn-submit').addEventListener('click', submitForm)
   document.getElementById('btn-copiar').addEventListener('click', copiarLink)
+  document.getElementById('btn-add-ev').addEventListener('click', adicionarEvento)
 
   if (!token) return showError('Link inválido ou incompleto.')
-
   try {
     const res = await fetch(`${API}/formulario/dados?t=${token}`)
     if (res.status === 410) return showError('Este link já foi utilizado ou expirou.')
     if (res.status === 401) return showError('Link inválido. Entre em contato com a Caverna.')
-    if (!res.ok) return showError('Erro ao verificar acesso. Tente novamente.')
+    if (!res.ok) return showError('Erro ao verificar acesso.')
     const data = await res.json()
     if (data.ja_preenchido) return showError('Este chaveiro já foi configurado.')
     document.getElementById('loading').classList.add('hide')
@@ -200,28 +264,32 @@ async function init() {
       document.getElementById('form-wrap').style.display = 'block'
     }, 500)
   } catch {
-    showError('Erro de conexão. Verifique sua internet e tente novamente.')
+    showError('Erro de conexão.')
   }
 }
 
-function setupUpload(inputId, previewId, filesArray, max) {
+// ── UPLOAD FOTOS ──
+function setupUpload(inputId, previewId, arr, max) {
   const input = document.getElementById(inputId)
   const preview = document.getElementById(previewId)
   const area = input.closest('.upload-area')
-  input.addEventListener('change', () => addFiles(input.files, filesArray, preview, max, input))
+  input.addEventListener('change', () => addFiles(input.files, arr, preview, max, input))
   area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag') })
   area.addEventListener('dragleave', () => area.classList.remove('drag'))
   area.addEventListener('drop', e => {
     e.preventDefault(); area.classList.remove('drag')
-    addFiles(e.dataTransfer.files, filesArray, preview, max, input)
+    addFiles(e.dataTransfer.files, arr, preview, max, input)
   })
 }
 
 function addFiles(fileList, arr, previewEl, max, input) {
   const novos = Array.from(fileList).filter(f =>
-    ['image/jpeg','image/png','image/webp'].includes(f.type) && f.size <= 20 * 1024 * 1024
+    ['image/jpeg','image/png','image/webp','image/heic','image/heif'].includes(f.type)
+    && f.size <= 20 * 1024 * 1024
   )
-  if (max && arr.length + novos.length > max) { mostrarErro(`Máximo de ${max} fotos nesta seção.`); return }
+  if (max && arr.length + novos.length > max) {
+    return mostrarErro(`Máximo de ${max} fotos nesta seção.`)
+  }
   novos.forEach(f => {
     arr.push(f)
     const reader = new FileReader()
@@ -229,7 +297,9 @@ function addFiles(fileList, arr, previewEl, max, input) {
       const item = document.createElement('div')
       item.className = 'preview-item'
       item.innerHTML = `<img src="${e.target.result}" alt=""/><button class="rm" type="button">✕</button>`
-      item.querySelector('.rm').addEventListener('click', () => { const idx = arr.indexOf(f); if (idx > -1) arr.splice(idx, 1); item.remove() })
+      item.querySelector('.rm').addEventListener('click', () => {
+        arr.splice(arr.indexOf(f), 1); item.remove()
+      })
       previewEl.appendChild(item)
     }
     reader.readAsDataURL(f)
@@ -238,19 +308,80 @@ function addFiles(fileList, arr, previewEl, max, input) {
 }
 
 setupUpload('input-carrossel', 'preview-carrossel', carrosselFiles, 4)
-setupUpload('input-album', 'preview-album', albumFiles, null)
+setupUpload('input-album', 'preview-album', albumFiles, 26)
 
+// ── UPLOAD VÍDEO ──
+document.getElementById('input-video').addEventListener('change', function() {
+  const f = this.files[0]
+  if (!f) return
+  if (f.size > 25 * 1024 * 1024) {
+    return mostrarErro('Vídeo excede o limite de 25MB.')
+  }
+  videoFile = f
+  document.getElementById('preview-video').textContent = `✓ ${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`
+})
+
+// ── UPLOAD ÁUDIO ──
+document.getElementById('input-audio').addEventListener('change', function() {
+  const f = this.files[0]
+  if (!f) return
+  if (f.size > 5 * 1024 * 1024) {
+    return mostrarErro('Áudio excede o limite de 5MB.')
+  }
+  audioFile = f
+  document.getElementById('preview-audio').textContent = `✓ ${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`
+})
+
+// ── TIMELINE ──
+function adicionarEvento() {
+  const lista = document.getElementById('timeline-lista')
+  const id = `ev-${eventoCount++}`
+  const div = document.createElement('div')
+  div.className = 'timeline-ev'
+  div.id = id
+  div.innerHTML = `
+    <button class="rm-ev" type="button" title="Remover">✕</button>
+    <div class="timeline-ev-fields">
+      <div class="field">
+        <label>Título do momento <span>*</span></label>
+        <input type="text" class="ev-titulo" maxlength="255" placeholder="Ex: Nos conhecemos"/>
+      </div>
+      <div class="field">
+        <label>Data <span>*</span></label>
+        <input type="date" class="ev-data"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Descrição</label>
+      <textarea class="ev-desc" maxlength="1000" placeholder="Conte como foi..." style="min-height:60px"></textarea>
+    </div>
+  `
+  div.querySelector('.rm-ev').addEventListener('click', () => div.remove())
+  lista.appendChild(div)
+}
+
+// ── SUBMIT ──
 async function submitForm() {
   const titulo = document.getElementById('titulo').value.trim()
   const data = document.getElementById('data').value
   const mensagem = document.getElementById('mensagem').value.trim()
   const spotifyUrl = document.getElementById('spotify-url').value.trim()
+  const encerramento = document.getElementById('encerramento').value.trim()
   const termos = document.getElementById('termos').checked
 
   if (!titulo) return mostrarErro('O título é obrigatório.')
   if (!data) return mostrarErro('A data é obrigatória.')
   if (!mensagem) return mostrarErro('A mensagem é obrigatória.')
   if (!termos) return mostrarErro('Você precisa aceitar os termos para continuar.')
+
+  // Coleta timeline
+  const timeline = []
+  document.querySelectorAll('.timeline-ev').forEach(ev => {
+    const t = ev.querySelector('.ev-titulo').value.trim()
+    const d = ev.querySelector('.ev-data').value
+    const desc = ev.querySelector('.ev-desc').value.trim()
+    if (t && d) timeline.push({ titulo: t, data_evento: d, descricao: desc })
+  })
 
   const btn = document.getElementById('btn-submit')
   btn.disabled = true
@@ -265,8 +396,10 @@ async function submitForm() {
         titulo_personalizado: titulo,
         data_inicio_relacionamento: data,
         mensagem_especial: mensagem,
+        mensagem_encerramento: encerramento || undefined,
         spotify_url: spotifyUrl || undefined,
-        termos_aceitos: true
+        termos_aceitos: true,
+        timeline
       })
     })
 
@@ -278,16 +411,21 @@ async function submitForm() {
     const { url_pagina, qr_code } = await res.json()
     urlPagina = url_pagina
 
-    // Upload carrossel — envia um por um com URLSearchParams para evitar problema de multipart
     if (carrosselFiles.length) {
-      btn.textContent = 'Enviando fotos do carrossel...'
-      await uploadMidias(carrosselFiles, true)
+      btn.textContent = 'Enviando fotos em destaque...'
+      await uploadMidias(carrosselFiles, 'foto', true)
     }
-
-    // Upload álbum
     if (albumFiles.length) {
       btn.textContent = 'Enviando álbum...'
-      await uploadMidias(albumFiles, false)
+      await uploadMidias(albumFiles, 'foto', false)
+    }
+    if (videoFile) {
+      btn.textContent = 'Enviando vídeo...'
+      await uploadArquivo(videoFile, 'video')
+    }
+    if (audioFile) {
+      btn.textContent = 'Enviando áudio...'
+      await uploadArquivo(audioFile, 'musica')
     }
 
     document.getElementById('success-qr').src = qr_code || ''
@@ -303,52 +441,48 @@ async function submitForm() {
   }
 }
 
-async function uploadMidias(files, isCarrossel) {
-  const progressWrap = document.getElementById('progress-wrap')
-  const progressFill = document.getElementById('progress-fill')
-  const progressTxt = document.getElementById('progress-txt')
-  progressWrap.style.display = 'block'
+async function uploadMidias(files, tipo, isCarrossel) {
+  const pw = document.getElementById('progress-wrap')
+  const pf = document.getElementById('progress-fill')
+  const pt = document.getElementById('progress-txt')
+  pw.style.display = 'block'
 
   for (let i = 0; i < files.length; i++) {
-    progressTxt.textContent = `Enviando foto ${i + 1} de ${files.length}...`
-    progressFill.style.width = `${(i / files.length) * 100}%`
-
-    // Monta URL com parâmetros para evitar problema de ordem no multipart
-    const url = `${API}/formulario/midia?t=${token}&tipo=foto&is_carrossel=${isCarrossel ? 'true' : 'false'}&ordem=${i}`
-
+    pt.textContent = `Enviando foto ${i+1} de ${files.length}...`
+    pf.style.width = `${(i/files.length)*100}%`
+    const url = `${API}/formulario/midia?t=${token}&tipo=${tipo}&is_carrossel=${isCarrossel}&ordem=${i}`
     const fd = new FormData()
     fd.append('file', files[i])
-
     const r = await fetch(url, { method: 'POST', body: fd })
-    if (!r.ok) {
-      const err = await r.json().catch(() => ({}))
-      console.error('Erro upload:', err)
-    }
+    if (!r.ok) console.error('Erro upload foto', await r.json().catch(() => ({})))
   }
-
-  progressFill.style.width = '100%'
-  progressTxt.textContent = 'Fotos enviadas!'
-  setTimeout(() => { progressWrap.style.display = 'none' }, 1000)
+  pf.style.width = '100%'
+  pt.textContent = 'Fotos enviadas!'
+  setTimeout(() => { pw.style.display = 'none' }, 800)
 }
 
+async function uploadArquivo(file, tipo) {
+  const url = `${API}/formulario/midia?t=${token}&tipo=${tipo}&is_carrossel=false&ordem=0`
+  const fd = new FormData()
+  fd.append('file', file)
+  const r = await fetch(url, { method: 'POST', body: fd })
+  if (!r.ok) console.error(`Erro upload ${tipo}`, await r.json().catch(() => ({})))
+}
+
+// ── UTILS ──
 function mostrarErro(msg) {
   const el = document.getElementById('form-error')
-  el.textContent = msg
-  el.classList.add('show')
+  el.textContent = msg; el.classList.add('show')
   el.scrollIntoView({ behavior: 'smooth', block: 'center' })
   const btn = document.getElementById('btn-submit')
-  btn.disabled = false
-  btn.textContent = 'Criar minha memória ♥'
+  btn.disabled = false; btn.textContent = 'Criar minha memória ♥'
 }
-
 function esconderErro() { document.getElementById('form-error').classList.remove('show') }
-
 function showError(msg) {
   document.getElementById('loading').style.display = 'none'
   document.getElementById('error-msg').textContent = msg
   document.getElementById('error-state').classList.add('show')
 }
-
 function copiarLink() {
   navigator.clipboard.writeText(urlPagina).then(() => {
     const btn = document.getElementById('btn-copiar')

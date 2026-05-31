@@ -7,10 +7,8 @@ export default async function adminRoutes(fastify) {
   fastify.post('/admin/chaveiros', { preHandler: adminAuth }, async (req, reply) => {
     const { nfc_uid } = req.body || {}
     const codigo = gerarCodigoUnico()
-
     const { rows } = await pool.query(
-      `INSERT INTO chaveiro_nfc (codigo_unico, nfc_uid)
-       VALUES ($1, $2) RETURNING *`,
+      `INSERT INTO chaveiro_nfc (codigo_unico, nfc_uid) VALUES ($1, $2) RETURNING *`,
       [codigo, nfc_uid || null]
     )
     return reply.code(201).send(rows[0])
@@ -34,19 +32,16 @@ export default async function adminRoutes(fastify) {
     if (!allowed.includes(status)) {
       return reply.code(400).send({ error: 'Status inválido' })
     }
-
     const { rows } = await pool.query(
       `UPDATE chaveiro_nfc SET status = $1 WHERE id = $2 RETURNING *`,
       [status, req.params.id]
     )
     if (!rows.length) return reply.code(404).send({ error: 'Chaveiro não encontrado' })
-
     const ativarPagina = status === 'ativo'
     await pool.query(
       `UPDATE pagina_romantica SET ativo = $1 WHERE chaveiro_id = $2`,
       [ativarPagina, req.params.id]
     )
-
     return rows[0]
   })
 
@@ -93,16 +88,62 @@ export default async function adminRoutes(fastify) {
     return rows
   })
 
-  // Roda a política de retenção LGPD manualmente
+  // ── MÉTRICAS DE ARMAZENAMENTO ──
+  fastify.get('/admin/metricas', { preHandler: adminAuth }, async (req, reply) => {
+    const { rows: geral } = await pool.query(`
+      SELECT
+        COUNT(DISTINCT p.id) as total_paginas,
+        COUNT(m.id) as total_midias,
+        COUNT(CASE WHEN m.tipo = 'foto' THEN 1 END) as total_fotos,
+        COUNT(CASE WHEN m.tipo = 'video' THEN 1 END) as total_videos,
+        COUNT(CASE WHEN m.tipo = 'musica' THEN 1 END) as total_audios
+      FROM pagina_romantica p
+      LEFT JOIN midia m ON m.pagina_id = p.id
+    `)
+
+    const { rows: porPagina } = await pool.query(`
+      SELECT
+        p.slug_url,
+        p.titulo_personalizado,
+        COUNT(m.id) as qtd_midias,
+        COUNT(CASE WHEN m.tipo = 'foto' THEN 1 END) as qtd_fotos,
+        COUNT(CASE WHEN m.tipo = 'video' THEN 1 END) as qtd_videos
+      FROM pagina_romantica p
+      LEFT JOIN midia m ON m.pagina_id = p.id
+      GROUP BY p.id, p.slug_url, p.titulo_personalizado
+      ORDER BY qtd_midias DESC
+      LIMIT 20
+    `)
+
+    const { rows: chaveiros } = await pool.query(`
+      SELECT
+        COUNT(*) as total,
+        COUNT(CASE WHEN status = 'ativo' THEN 1 END) as ativos,
+        COUNT(CASE WHEN status = 'pendente' THEN 1 END) as pendentes,
+        COUNT(CASE WHEN status = 'bloqueado' THEN 1 END) as bloqueados
+      FROM chaveiro_nfc
+    `)
+
+    return {
+      chaveiros: chaveiros[0],
+      midias: geral[0],
+      por_pagina: porPagina,
+      limites: {
+        foto: { max_por_pagina: 30 },
+        video: { max_por_pagina: 1, tamanho_max_mb: 25 },
+        musica: { max_por_pagina: 1, tamanho_max_mb: 5 }
+      }
+    }
+  })
+
+  // ── LGPD / LIMPEZA ──
   fastify.post('/admin/lgpd/anonimizar', { preHandler: adminAuth }, async (req, reply) => {
     await pool.query(`
       UPDATE acesso_log
       SET ip = 'anonimizado', user_agent = 'anonimizado', geo_cidade = NULL
       WHERE acessado_em < NOW() - INTERVAL '90 days' AND ip != 'anonimizado'
     `)
-    await pool.query(`
-      DELETE FROM acesso_log WHERE acessado_em < NOW() - INTERVAL '1 year'
-    `)
+    await pool.query(`DELETE FROM acesso_log WHERE acessado_em < NOW() - INTERVAL '1 year'`)
     await pool.query(`
       UPDATE pedido SET
         nome_comprador = 'removido', email_comprador = 'removido@removido.com',
