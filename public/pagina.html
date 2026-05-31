@@ -328,6 +328,10 @@ document.getElementById('lightbox').addEventListener('click', function(e) {
 })
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox() })
 
+fastify.get('/admin', async (req, reply) => {
+  return reply.sendFile('admin.html')
+})
+
 loadPage()
 </script>
 </body>
