@@ -80,17 +80,14 @@ main.visible{opacity:1;transform:translateY(0);}
 </style>
 </head>
 <body>
-
 <div id="loading">
   <div class="loading-ring"></div>
   <span class="loading-text">Preparando sua memória</span>
 </div>
-
 <div id="error-state">
   <h2>Página indisponível</h2>
   <p>Esta página não existe ou foi desativada. Se você recebeu este link, entre em contato com a Caverna.</p>
 </div>
-
 <main id="main-content">
   <section class="hero">
     <div class="hero-ornament"></div>
@@ -99,7 +96,6 @@ main.visible{opacity:1;transform:translateY(0);}
     <span class="hero-date" id="hero-date"></span>
     <div class="hero-ornament"></div>
   </section>
-
   <section id="section-carrossel" class="fade-in" style="display:none">
     <div class="carousel-wrap" id="carousel">
       <div class="carousel-track" id="carousel-track"></div>
@@ -109,12 +105,10 @@ main.visible{opacity:1;transform:translateY(0);}
       <div class="carousel-dots" id="carousel-dots"></div>
     </div>
   </section>
-
   <section class="section fade-in">
     <div class="section-label">Nossa história</div>
     <p class="mensagem-text" id="mensagem"></p>
   </section>
-
   <div class="counter-wrap fade-in" id="counter-wrap" style="display:none">
     <div class="counter-unit"><span class="counter-num" id="cnt-anos">0</span><span class="counter-lbl">Anos</span></div>
     <span class="counter-sep">·</span>
@@ -126,7 +120,6 @@ main.visible{opacity:1;transform:translateY(0);}
     <span class="counter-sep">·</span>
     <div class="counter-unit"><span class="counter-num" id="cnt-min">00</span><span class="counter-lbl">Min</span></div>
   </div>
-
   <section id="section-spotify" class="section fade-in" style="display:none">
     <div class="section-label">Nossa música</div>
     <div class="player-wrap">
@@ -135,29 +128,24 @@ main.visible{opacity:1;transform:translateY(0);}
         loading="lazy" allowfullscreen></iframe>
     </div>
   </section>
-
   <section id="section-album" class="section fade-in" style="display:none">
     <div class="section-label">Nosso álbum</div>
     <div class="album-grid" id="album-grid"></div>
   </section>
-
   <footer class="page-footer fade-in">
     <span class="footer-ornament">♥</span>
     <span class="footer-brand">Caverna · Memórias que duram</span>
   </footer>
 </main>
-
 <div class="lightbox" id="lightbox">
   <img id="lightbox-img" src="" alt=""/>
   <button class="lightbox-close" id="btn-lightbox-close">✕</button>
   <span class="lightbox-caption" id="lightbox-caption"></span>
 </div>
-
 <script>
 const slug = location.pathname.split('/p/')[1]?.replace(/\/$/, '')
 const API = ''
 let carIndex = 0, carSlides = []
-
 async function loadPage() {
   if (!slug) return showError()
   const origem = new URLSearchParams(location.search).get('origem') || 'link_direto'
@@ -176,12 +164,10 @@ async function loadPage() {
     showError()
   }
 }
-
 function renderPage({ pagina, carrossel, album }) {
   document.title = pagina.titulo_personalizado || 'Nossa memória'
   document.getElementById('page-title').textContent = document.title
   document.getElementById('hero-title-text').textContent = pagina.titulo_personalizado || ''
-
   if (pagina.data_inicio_relacionamento) {
     const d = new Date(pagina.data_inicio_relacionamento.split('T')[0] + 'T12:00:00')
     document.getElementById('hero-date').textContent =
@@ -189,24 +175,19 @@ function renderPage({ pagina, carrossel, album }) {
     document.getElementById('counter-wrap').style.display = 'flex'
     startCounter(d)
   }
-
   document.getElementById('mensagem').textContent = pagina.mensagem_especial || ''
-
   if (carrossel.length) {
     renderCarrossel(carrossel)
     document.getElementById('section-carrossel').style.display = 'block'
   }
-
   if (pagina.spotify_url) {
     renderSpotify(pagina.spotify_url)
     document.getElementById('section-spotify').style.display = 'block'
   }
-
   if (album.length) {
     renderAlbum(album)
     document.getElementById('section-album').style.display = 'block'
   }
-
   const loading = document.getElementById('loading')
   loading.classList.add('fade')
   setTimeout(() => {
@@ -215,7 +196,6 @@ function renderPage({ pagina, carrossel, album }) {
     observeFadeIns()
   }, 600)
 }
-
 function renderCarrossel(fotos) {
   const track = document.getElementById('carousel-track')
   const dots = document.getElementById('carousel-dots')
@@ -242,14 +222,12 @@ function renderCarrossel(fotos) {
     if (Math.abs(diff) > 40) carMove(diff > 0 ? 1 : -1)
   })
 }
-
 function carGoTo(i) {
   carIndex = i
   document.getElementById('carousel-track').style.transform = `translateX(-${i*100}%)`
   document.querySelectorAll('.carousel-dot').forEach((d,j) => d.classList.toggle('active', j===i))
 }
 function carMove(dir) { carGoTo((carIndex + dir + carSlides.length) % carSlides.length) }
-
 function renderSpotify(url) {
   const match = url.match(/spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode)\/([a-zA-Z0-9]+)/)
   if (!match) return
@@ -257,7 +235,6 @@ function renderSpotify(url) {
   document.getElementById('spotify-iframe').src =
     `https://open.spotify.com/embed/${tipo}/${id}?utm_source=generator&theme=0`
 }
-
 function renderAlbum(fotos) {
   const grid = document.getElementById('album-grid')
   fotos.forEach(f => {
@@ -279,7 +256,6 @@ function renderAlbum(fotos) {
     grid.appendChild(item)
   })
 }
-
 function openLightbox(src, caption) {
   document.getElementById('lightbox-img').src = src
   document.getElementById('lightbox-caption').textContent = caption || ''
@@ -290,7 +266,6 @@ function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open')
   document.body.style.overflow = ''
 }
-
 function startCounter(dataInicio) {
   function tick() {
     const diff = new Date() - dataInicio
@@ -306,20 +281,16 @@ function startCounter(dataInicio) {
   tick()
   setInterval(tick, 60000)
 }
-
 function observeFadeIns() {
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target) } })
   }, { threshold: 0.1 })
   document.querySelectorAll('.fade-in').forEach(el => obs.observe(el))
 }
-
 function showError() {
   document.getElementById('loading').style.display = 'none'
   document.getElementById('error-state').classList.add('show')
 }
-
-// Event listeners — sem onclick inline (CSP safe)
 document.getElementById('btn-prev').addEventListener('click', () => carMove(-1))
 document.getElementById('btn-next').addEventListener('click', () => carMove(1))
 document.getElementById('btn-lightbox-close').addEventListener('click', closeLightbox)
@@ -327,11 +298,6 @@ document.getElementById('lightbox').addEventListener('click', function(e) {
   if (e.target === this) closeLightbox()
 })
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox() })
-
-fastify.get('/admin', async (req, reply) => {
-  return reply.sendFile('admin.html')
-})
-
 loadPage()
 </script>
 </body>
