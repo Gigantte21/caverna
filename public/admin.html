@@ -105,7 +105,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
   <div class="login-box">
     <h2>⛏ Caverna Admin</h2>
     <input id="input-token" type="password" placeholder="Admin Token" />
-    <button onclick="fazerLogin()">Entrar</button>
+    <button id="btn-login">Entrar</button>
     <div class="erro" id="login-erro"></div>
   </div>
 </div>
@@ -114,7 +114,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 <div id="app" style="display:none">
   <div class="header">
     <h1>⛏ Caverna · Admin</h1>
-    <button class="sair" onclick="sair()">Sair</button>
+    <button class="sair" id="btn-sair">Sair</button>
   </div>
 
   <div class="layout">
@@ -126,7 +126,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
         <div class="form-group"><label>Telefone</label><input id="f-tel" placeholder="11999999999"/></div>
         <div class="form-group"><label>Método de pagamento</label><input id="f-metodo" value="pix"/></div>
         <div class="form-group"><label>Valor pago (R$)</label><input id="f-valor" type="number" value="27.90"/></div>
-        <button class="btn btn-primary" id="btn-venda" onclick="criarVenda()">♥ Registrar venda e gerar link</button>
+        <button class="btn btn-primary" id="btn-venda" >♥ Registrar venda e gerar link</button>
         <div id="resultado-venda" style="display:none"></div>
       </div>
 
@@ -135,16 +135,16 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
       <div>
         <div class="section-title">Ações rápidas</div>
         <div style="display:flex;flex-direction:column;gap:.5rem">
-          <button class="btn btn-secondary" onclick="carregarChaveiros()">↻ Atualizar lista</button>
-          <button class="btn btn-danger" onclick="confirmarLimpeza()">🗑 Limpar dados de teste</button>
+          <button class="btn btn-secondary" id="btn-atualizar">↻ Atualizar lista</button>
+          <button class="btn btn-danger" id="btn-limpar">🗑 Limpar dados de teste</button>
         </div>
       </div>
     </div>
 
     <div class="main">
       <div class="tabs">
-        <div class="tab active" onclick="showTab('chaveiros')">Chaveiros</div>
-        <div class="tab" onclick="showTab('logs')">Logs de acesso</div>
+        <div class="tab active" id="tab-btn-chaveiros">Chaveiros</div>
+        <div class="tab" id="tab-btn-logs">Logs de acesso</div>
       </div>
 
       <div id="tab-chaveiros">
@@ -409,6 +409,16 @@ function confirmarLimpeza() {
     .then(() => { toast('Dados limpos!', 'ok'); carregarChaveiros() })
     .catch(err => toast(err.message, 'err'))
 }
+
+// ── EVENT LISTENERS (CSP safe) ──
+document.getElementById('btn-login').addEventListener('click', fazerLogin)
+document.getElementById('btn-sair').addEventListener('click', sair)
+document.getElementById('btn-venda').addEventListener('click', criarVenda)
+document.getElementById('btn-atualizar').addEventListener('click', carregarChaveiros)
+document.getElementById('btn-limpar').addEventListener('click', confirmarLimpeza)
+document.getElementById('tab-btn-chaveiros').addEventListener('click', () => showTab('chaveiros'))
+document.getElementById('tab-btn-logs').addEventListener('click', () => showTab('logs'))
+
 </script>
 </body>
 </html>
