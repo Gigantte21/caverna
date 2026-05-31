@@ -47,8 +47,6 @@ export default async function formularioRoutes(fastify) {
     const slug = await gerarSlugUnico()
     const ip = req.headers['cf-connecting-ip'] || req.ip
 
-    const mensagemEncerramento = sanitizeText(body.mensagem_encerramento || '', 500)
-
     const { rows } = await pool.query(
       `INSERT INTO pagina_romantica
          (chaveiro_id, slug_url, titulo_personalizado, mensagem_especial,
