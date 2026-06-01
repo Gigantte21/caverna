@@ -147,7 +147,8 @@ export default async function formularioRoutes(fastify) {
       url = await uploadMidia(data, tipo, paginaId)
       fastify.log.info({ url, tipo, isCarrossel }, 'upload ok')
     } catch (uploadErr) {
-      fastify.log.error({ erro: uploadErr.message }, 'erro upload')
+      fastify.log.error({ erro: uploadErr.message, stack: uploadErr.stack }, 'erro upload')
+return reply.code(400).send({ error: uploadErr.message })
       return reply.code(400).send({ error: uploadErr.message })
     }
 
