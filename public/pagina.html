@@ -711,10 +711,17 @@ function renderTimeline(eventos) {
   eventos.forEach(ev => {
     const item = document.createElement('div')
     item.className = 'timeline-item'
-    const data = new Date(ev.data_evento + 'T12:00:00')
+    // Garante parse correto independente do formato retornado pelo banco
+    const dataStr = (ev.data_evento || '').toString().split('T')[0]
+    const partes = dataStr.split('-')
+    let dataFormatada = dataStr
+    if (partes.length === 3) {
+      const d = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]))
+      dataFormatada = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+    }
     item.innerHTML = `
       <div class="timeline-dot"></div>
-      <span class="timeline-data">${data.toLocaleDateString('pt-BR', { month:'long', year:'numeric' })}</span>
+      <span class="timeline-data">${dataFormatada}</span>
       <div class="timeline-titulo">${ev.titulo}</div>
       ${ev.descricao ? `<div class="timeline-desc">${ev.descricao}</div>` : ''}
     `

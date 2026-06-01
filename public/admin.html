@@ -78,6 +78,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 .btn-bloquear { background: rgba(224,85,85,.2); color: var(--red); }
 .btn-link { background: rgba(201,168,76,.1); color: var(--gold); }
 .btn-logs { background: rgba(100,100,100,.2); color: var(--muted); }
+.btn-excluir { background: rgba(224,85,85,.15); color: var(--red); }
 .tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(201,168,76,.1); margin-bottom: 1.5rem; }
 .tab { padding: .6rem 1.25rem; cursor: pointer; font-size: .8rem; color: var(--muted); border-bottom: 2px solid transparent; }
 .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
@@ -342,6 +343,7 @@ async function carregarChaveiros() {
             ${c.status !== 'ativo' ? `<button class="btn-ativar" data-id="${c.id}" data-action="ativar">Ativar</button>` : ''}
             ${c.status === 'ativo' ? `<button class="btn-bloquear" data-id="${c.id}" data-action="bloquear">Bloquear</button>` : ''}
             <button class="btn-logs" data-id="${c.id}" data-action="logs">Logs</button>
+            <button class="btn-excluir" data-id="${c.id}" data-action="excluir">🗑</button>
           </div>
         </td>
       `
@@ -355,6 +357,7 @@ async function carregarChaveiros() {
         if (action === 'ativar') mudarStatus(id, 'ativo')
         else if (action === 'bloquear') mudarStatus(id, 'bloqueado')
         else if (action === 'logs') verLogs(id)
+        else if (action === 'excluir') excluirChaveiro(id)
       })
     })
   } catch (err) {
@@ -401,6 +404,17 @@ function copiar(texto) {
 function whatsapp(link, nome) {
   const msg = encodeURIComponent(`Olá ${nome}! Acesse o link abaixo para montar sua memória:\n\n${link}`)
   window.open(`https://wa.me/?text=${msg}`, '_blank')
+}
+
+async function excluirChaveiro(id) {
+  if (!confirm('Excluir este chaveiro e TODOS os dados associados (fotos, vídeos, página)? Não pode ser desfeito.')) return
+  try {
+    await api('DELETE', `/admin/chaveiros/${id}`)
+    toast('Chaveiro excluído com sucesso!', 'ok')
+    carregarChaveiros()
+  } catch (err) {
+    toast(err.message, 'err')
+  }
 }
 
 function confirmarLimpeza() {

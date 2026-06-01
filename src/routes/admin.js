@@ -1,4 +1,5 @@
 import pool from '../db/pool.js'
+import { deletarChaveiro } from '../services/deletar.js'
 import { adminAuth } from '../middleware/auth.js'
 import { gerarCodigoUnico, criarLinkFormulario } from '../services/tokens.js'
 
@@ -155,4 +156,16 @@ export default async function adminRoutes(fastify) {
     `)
     return { ok: true, executado_em: new Date().toISOString() }
   })
+
+  // ── EXCLUSÃO COMPLETA (R2 + banco) ──
+  fastify.delete('/admin/chaveiros/:id', { preHandler: adminAuth }, async (req, reply) => {
+    try {
+      const resultado = await deletarChaveiro(req.params.id)
+      return { ok: true, ...resultado }
+    } catch (err) {
+      fastify.log.error(err)
+      return reply.code(500).send({ error: err.message })
+    }
+  })
+
 }
