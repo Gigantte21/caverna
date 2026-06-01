@@ -35,7 +35,7 @@ const MAGIC = {
   'image/webp':   [0x52, 0x49, 0x46, 0x46],
   'video/mp4':    null,
   'video/quicktime': null,
-  'audio/mpeg':   [0xFF, 0xFB],
+  'audio/mpeg':   null,
   'audio/ogg':    [0x4F, 0x67, 0x67, 0x53]
 }
 
