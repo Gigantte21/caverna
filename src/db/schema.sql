@@ -43,6 +43,7 @@ CREATE TABLE pagina_romantica (
   mensagem_especial TEXT,
   data_inicio_relacionamento DATE,
   tema VARCHAR(32) NOT NULL DEFAULT 'classico',
+  mensagem_encerramento TEXT,
   ativo BOOLEAN NOT NULL DEFAULT TRUE,
   criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -75,10 +76,19 @@ CREATE TABLE qr_code (
   gerado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE timeline_eventos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  pagina_id UUID NOT NULL REFERENCES pagina_romantica(id) ON DELETE CASCADE,
+  titulo VARCHAR(255) NOT NULL,
+  descricao TEXT,
+  data_evento DATE NOT NULL,
+  ordem INT NOT NULL DEFAULT 0
+);
+
 CREATE TABLE acesso_log (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  pagina_id UUID NOT NULL REFERENCES pagina_romantica(id),
-  link_token_id UUID REFERENCES link_token(id),
+  pagina_id UUID NOT NULL REFERENCES pagina_romantica(id) ON DELETE CASCADE,
+  link_token_id UUID REFERENCES link_token(id) ON DELETE SET NULL,
   ip VARCHAR(64),
   user_agent TEXT,
   geo_pais VARCHAR(64),
@@ -92,3 +102,4 @@ CREATE INDEX idx_pagina_slug ON pagina_romantica(slug_url);
 CREATE INDEX idx_acesso_pagina ON acesso_log(pagina_id);
 CREATE INDEX idx_token_chaveiro ON link_token(chaveiro_id);
 CREATE INDEX idx_midia_pagina ON midia(pagina_id);
+CREATE INDEX idx_timeline_pagina ON timeline_eventos(pagina_id);

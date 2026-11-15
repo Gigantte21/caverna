@@ -1,0 +1,37 @@
+# Blueprint do Render — Caverna NFC
+# Banco: Neon (Postgres). Mídias: Cloudflare R2.
+# Variáveis com sync:false são pedidas no painel na primeira vez.
+services:
+  - type: web
+    name: caverna
+    runtime: node
+    plan: starter            # plano pago: não "dorme" (o toque no NFC abre na hora)
+    region: virginia         # crie o Neon em AWS us-east-1 (mesma região)
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true  # veja o valor no painel do Render para entrar no /admin
+      - key: DATABASE_URL
+        sync: false          # connection string do Neon (com ?sslmode=require)
+      - key: BASE_URL
+        sync: false          # ex: https://seudominio.com.br (sem barra no final)
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_ACCESS_KEY
+        sync: false
+      - key: R2_SECRET_KEY
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: R2_PUBLIC_URL
+        sync: false

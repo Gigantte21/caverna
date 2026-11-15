@@ -2,7 +2,8 @@
 
 ## Stack
 - Node.js 18+ / Fastify
-- PostgreSQL (Railway)
+- PostgreSQL (Neon)
+- Hospedagem: Render (Starter, não dorme)
 - Cloudflare R2 (storage de mídia)
 - Cloudflare (proxy, SSL, cache)
 
@@ -18,19 +19,18 @@ node src/server.js
 
 ## Setup banco
 
-No Railway, abra o shell do PostgreSQL e rode:
+No Neon, abra o **SQL Editor** e cole o conteúdo de `src/db/schema.sql`.
 
-```bash
-psql $DATABASE_URL < src/db/schema.sql
-```
+`src/db/lgpd.sql` não é de instalação: é a limpeza periódica (LGPD) — rode de tempos em tempos.
 
-## Deploy Railway
+## Deploy (Render + Neon)
 
-1. Crie projeto no Railway
-2. Adicione serviço PostgreSQL
-3. Conecte repositório GitHub
-4. Configure variáveis de ambiente (copie do `.env.example`)
-5. Deploy automático a cada `git push`
+1. Neon: crie um projeto na região AWS us-east-1 e copie a connection string
+2. Rode o `schema.sql` no SQL Editor do Neon
+3. Render: New → Blueprint → escolha este repositório (lê o `render.yaml`)
+4. Preencha as variáveis pedidas (`DATABASE_URL`, `BASE_URL`, `R2_*`)
+5. `JWT_SECRET` e `ADMIN_TOKEN` são gerados pelo Render — veja o token no painel
+6. Deploy automático a cada `git push` na branch `main`
 
 ## Endpoints
 
