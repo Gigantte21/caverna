@@ -5,7 +5,7 @@ services:
   - type: web
     name: caverna
     runtime: node
-    plan: starter            # plano pago: não "dorme" (o toque no NFC abre na hora)
+    plan: free               # TESTES. Antes de vender: trocar para starter (o free "dorme" e demora no 1º toque)
     region: virginia         # crie o Neon em AWS us-east-1 (mesma região)
     branch: main
     buildCommand: npm ci
