@@ -1,6 +1,6 @@
 import pool from '../db/pool.js'
 import { formularioAuth } from '../middleware/auth.js'
-import { gerarSlugUnico } from '../services/tokens.js'
+import { gerarSlugUnico, origemDo } from '../services/tokens.js'
 import { uploadMidia, LIMITES } from '../services/r2.js'
 import { sanitizeText, sanitizeLonga, sanitizeUrl, sanitizeData } from '../services/sanitize.js'
 import { gerarEsalvarQRCode } from '../services/qrcode.js'
@@ -90,11 +90,11 @@ export default async function formularioRoutes(fastify) {
     // senão o cliente vê erro e, ao tentar de novo, recebe "já preenchido" com a página pela metade.
     let qr = { url_imagem: null, url_destino: null }
     try {
-      qr = await gerarEsalvarQRCode(pagina.id, slug)
+      qr = await gerarEsalvarQRCode(pagina.id, slug, origemDo(req))
     } catch (err) {
       fastify.log.error({ erro: err.message, pagina: pagina.id }, 'falha ao gerar QR code')
     }
-    const urlPagina = `${process.env.BASE_URL}/p/${slug}`
+    const urlPagina = `${origemDo(req)}/p/${slug}`
 
     return reply.code(201).send({
       pagina,

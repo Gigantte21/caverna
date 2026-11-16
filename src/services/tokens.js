@@ -30,7 +30,11 @@ export async function gerarSlugUnico() {
   return slug
 }
 
-export async function criarLinkFormulario(fastify, chaveiroId) {
+// Endereço em que o site está sendo acessado agora (https://dominio), vindo da própria requisição.
+// Os links são montados com ele, e não com BASE_URL, para nunca apontarem para um domínio errado.
+export const origemDo = req => `${req.protocol}://${req.hostname}`
+
+export async function criarLinkFormulario(fastify, chaveiroId, origem = process.env.BASE_URL) {
   const token = fastify.jwt.sign(
     { chaveiro_id: chaveiroId, tipo: 'formulario', jti: randomBytes(8).toString('hex') },
     { expiresIn: '7d' }
@@ -45,5 +49,5 @@ export async function criarLinkFormulario(fastify, chaveiroId) {
     [chaveiroId, token, expira]
   )
 
-  return `${process.env.BASE_URL}/formulario?t=${token}`
+  return `${origem}/formulario?t=${token}`
 }

@@ -1,7 +1,7 @@
 import pool from '../db/pool.js'
 import { deletarChaveiro } from '../services/deletar.js'
 import { adminAuth } from '../middleware/auth.js'
-import { gerarCodigoUnico, criarLinkFormulario } from '../services/tokens.js'
+import { gerarCodigoUnico, criarLinkFormulario, origemDo } from '../services/tokens.js'
 import { PRODUTOS, PRODUTO_IDS } from '../services/produtos.js'
 
 export default async function adminRoutes(fastify) {
@@ -87,7 +87,7 @@ export default async function adminRoutes(fastify) {
       [req.params.id]
     )
 
-    const linkFormulario = await criarLinkFormulario(fastify, req.params.id)
+    const linkFormulario = await criarLinkFormulario(fastify, req.params.id, origemDo(req))
     return reply.code(201).send({ pedido: rows[0], link_formulario: linkFormulario })
   })
 

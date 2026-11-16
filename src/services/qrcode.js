@@ -12,8 +12,9 @@ const r2 = new S3Client({
   }
 })
 
-export async function gerarEsalvarQRCode(paginaId, slug) {
-  const urlDestino = `${process.env.BASE_URL}/p/${slug}?origem=qr`
+export async function gerarEsalvarQRCode(paginaId, slug, origem = process.env.BASE_URL) {
+  // "qrcode" é o nome que a página reconhece no log de acessos
+  const urlDestino = `${origem}/p/${slug}?origem=qrcode`
 
   // Gera PNG do QR Code em memória (buffer)
   const buffer = await QRCode.toBuffer(urlDestino, {
