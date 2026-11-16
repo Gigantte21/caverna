@@ -22,7 +22,7 @@ export default async function adminRoutes(fastify) {
     const { rows } = await pool.query(
       `SELECT c.*, p.slug_url, p.ativo as pagina_ativa,
               pe.nome_comprador, pe.email_comprador, pe.status_pagamento,
-              pe.produto, pe.valor_pago
+              pe.produto, pe.valor_pago, pe.finalidade
        FROM chaveiro_nfc c
        LEFT JOIN pagina_romantica p ON p.chaveiro_id = c.id
        LEFT JOIN pedido pe ON pe.chaveiro_id = c.id
@@ -56,6 +56,12 @@ export default async function adminRoutes(fastify) {
     if (!PRODUTO_IDS.includes(produto)) {
       return reply.code(400).send({ error: 'Produto inválido' })
     }
+    const finalidade = req.body.finalidade || 'venda'
+    if (!['venda', 'marketing'].includes(finalidade)) {
+      return reply.code(400).send({ error: 'Finalidade inválida' })
+    }
+    // Peça de marketing é cortesia: nunca entra com valor
+    const valor = finalidade === 'marketing' ? 0 : valor_pago
 
     const { rows: check } = await pool.query(
       'SELECT id FROM chaveiro_nfc WHERE id = $1', [req.params.id]
@@ -66,12 +72,12 @@ export default async function adminRoutes(fastify) {
 
     const { rows } = await pool.query(
       `INSERT INTO pedido
-         (chaveiro_id, produto, nome_comprador, email_comprador, telefone,
+         (chaveiro_id, produto, finalidade, nome_comprador, email_comprador, telefone,
           metodo_pagamento, valor_pago, status_pagamento, pago_em,
           termos_aceitos, termos_versao, termos_aceitos_em, termos_ip)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,'pago',NOW(),false,'v1.0',NULL,NULL)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pago',NOW(),false,'v1.0',NULL,NULL)
        RETURNING *`,
-      [req.params.id, produto, nome_comprador, email_comprador, telefone, metodo_pagamento, valor_pago]
+      [req.params.id, produto, finalidade, nome_comprador, email_comprador, telefone, metodo_pagamento, valor]
     )
 
     await pool.query(

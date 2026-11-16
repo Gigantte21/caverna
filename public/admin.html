@@ -127,6 +127,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
         <div class="form-group"><label>Telefone</label><input id="f-tel" placeholder="11999999999"/></div>
         <div class="form-group"><label>Método de pagamento</label><input id="f-metodo" value="pix"/></div>
         <div class="form-group"><label>Produto</label><select id="f-produto"></select></div>
+        <div class="form-group"><label>Finalidade</label><select id="f-finalidade"><option value="venda">Venda</option><option value="marketing">Marketing / cortesia (sem cobrança)</option></select></div>
         <div class="form-group"><label>Valor pago (R$)</label><input id="f-valor" type="number" step="0.01" min="0"/></div>
         <button class="btn btn-primary" id="btn-venda" >♥ Registrar venda e gerar link</button>
         <div id="resultado-venda" style="display:none"></div>
@@ -266,6 +267,7 @@ async function criarVenda() {
   const metodo = document.getElementById('f-metodo').value.trim()
   const valor = parseFloat(document.getElementById('f-valor').value)
   const produto = document.getElementById('f-produto').value
+  const finalidade = document.getElementById('f-finalidade').value
 
   if (!nome || !email) return toast('Nome e email são obrigatórios', 'err')
   if (!produto) return toast('Escolha o produto', 'err')
@@ -279,6 +281,7 @@ async function criarVenda() {
     const chaveiro = await api('POST', '/admin/chaveiros', {})
     const pedido = await api('POST', `/admin/chaveiros/${chaveiro.id}/pedido`, {
       produto,
+      finalidade,
       nome_comprador: nome,
       email_comprador: email,
       telefone: tel,
@@ -330,22 +333,32 @@ async function carregarProdutos() {
   const sel = document.getElementById('f-produto')
   sel.innerHTML = '<option value="">Escolha…</option>' + PRODUTOS
     .map(p => `<option value="${p.id}">${p.nome}${p.preco ? ' — ' + brl(p.preco) : ''}</option>`).join('')
-  sel.addEventListener('change', () => {
+  const fin = document.getElementById('f-finalidade')
+  const val = document.getElementById('f-valor')
+  const aplicarValor = () => {
     const p = PRODUTOS.find(x => x.id === sel.value)
-    document.getElementById('f-valor').value = p && p.preco ? p.preco.toFixed(2) : ''
-  })
+    const marketing = fin.value === 'marketing'
+    val.disabled = marketing
+    val.value = marketing ? '0.00' : (p && p.preco ? p.preco.toFixed(2) : '')
+  }
+  sel.addEventListener('change', aplicarValor)
+  fin.addEventListener('change', aplicarValor)
 }
 
 function resumoPorProduto(lista) {
   const r = {}
-  lista.filter(c => c.produto).forEach(c => {
+  const marketing = lista.filter(c => c.finalidade === 'marketing').length
+  lista.filter(c => c.produto && c.finalidade !== 'marketing').forEach(c => {
     r[c.produto] = r[c.produto] || { qtd: 0, total: 0 }
     r[c.produto].qtd++
     r[c.produto].total += Number(c.valor_pago || 0)
   })
   const partes = Object.entries(r).sort((a, b) => b[1].total - a[1].total)
     .map(([id, v]) => `${nomeProduto(id)}: <b style="color:var(--gold-lt)">${v.qtd}</b> · ${brl(v.total)}`)
-  document.getElementById('resumo-produtos').innerHTML = partes.length ? 'Vendas por produto — ' + partes.join(' &nbsp;|&nbsp; ') : ''
+  const txt = []
+  if (partes.length) txt.push('Vendas por produto — ' + partes.join(' &nbsp;|&nbsp; '))
+  if (marketing) txt.push(`Marketing: <b style="color:var(--gold-lt)">${marketing}</b> peça(s) de cortesia, fora do faturamento`)
+  document.getElementById('resumo-produtos').innerHTML = txt.join('<br>')
 }
 
 // ── CARREGAR CHAVEIROS ──
@@ -371,7 +384,7 @@ async function carregarChaveiros() {
       tr.innerHTML = `
         <td style="font-family:monospace;font-size:.7rem">${(c.codigo_unico || '').slice(0,12)}...</td>
         <td>${c.nome_comprador ? esc(c.nome_comprador) : '<span style="color:var(--muted)">—</span>'}</td>
-        <td style="font-size:.75rem">${c.produto ? nomeProduto(c.produto) : '<span style="color:var(--muted)">—</span>'}</td>
+        <td style="font-size:.75rem">${c.produto ? nomeProduto(c.produto) : '<span style="color:var(--muted)">—</span>'}${c.finalidade === 'marketing' ? ' <span style="color:var(--gold-dk)">· marketing</span>' : ''}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>${c.slug_url
           ? `<a href="${BASE}/p/${c.slug_url}" target="_blank" style="color:var(--gold-lt);font-size:.75rem">abrir ↗</a>`
