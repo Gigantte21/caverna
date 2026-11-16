@@ -12,6 +12,7 @@ CREATE TABLE chaveiro_nfc (
 CREATE TABLE pedido (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   chaveiro_id UUID NOT NULL REFERENCES chaveiro_nfc(id),
+  produto VARCHAR(32) NOT NULL DEFAULT 'chaveiro',
   nome_comprador VARCHAR(255) NOT NULL,
   email_comprador VARCHAR(255) NOT NULL,
   telefone VARCHAR(32),

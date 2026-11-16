@@ -43,18 +43,15 @@ await fastify.register(fastifyRateLimit, {
   errorResponseBuilder: () => ({ error: 'Muitas requisições. Tente novamente em instantes.' })
 })
 
-await fastify.register(fastifyCors, {
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-})
+// Admin, formulário e página são servidos pelo próprio site: nenhum outro domínio precisa chamar a API
+await fastify.register(fastifyCors, { origin: false })
 
 await fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET
 })
 
 await fastify.register(fastifyMultipart, {
-  limits: { fileSize: 20 * 1024 * 1024, files: 20 }
+  limits: { fileSize: 25 * 1024 * 1024, files: 20 } // 25MB = limite do vídeo (r2.js); fotos seguem limitadas a 20MB lá
 })
 
 await fastify.register(fastifyStatic, {

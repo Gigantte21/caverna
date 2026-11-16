@@ -296,6 +296,8 @@ main.visible{opacity:1;transform:translateY(0);}
 </div>
 
 <script>
+// Texto vindo do cliente sempre entra escapado quando passa por innerHTML
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 const slug = location.pathname.split('/p/')[1]?.replace(/\/$/, '')
 let lbAll = [], lbIdx = 0
 let audioEl, playing = false
@@ -461,8 +463,8 @@ function renderTimeline(eventos) {
       <div class="tl-dot"></div>
       <div class="tl-card">
         <span class="tl-data">${df}</span>
-        <div class="tl-titulo">${ev.titulo||''}</div>
-        ${ev.descricao?`<div class="tl-desc">${ev.descricao}</div>`:''}
+        <div class="tl-titulo">${esc(ev.titulo)}</div>
+        ${ev.descricao?`<div class="tl-desc">${esc(ev.descricao)}</div>`:''}
       </div>`
     c.appendChild(item)
   })
@@ -482,7 +484,7 @@ function renderAlbum(fotos) {
     if (f.legenda) {
       const ov = document.createElement('div')
       ov.className = 'album-overlay'
-      ov.innerHTML = `<span>${f.legenda}</span>`
+      ov.innerHTML = `<span>${esc(f.legenda)}</span>`
       item.appendChild(ov)
     }
     const idx = startIdx + i

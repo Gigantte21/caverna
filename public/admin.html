@@ -34,7 +34,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 .section-title { font-size: .6rem; letter-spacing: .25em; color: var(--gold-dk); text-transform: uppercase; margin-bottom: .5rem; }
 .form-group { margin-bottom: .75rem; }
 .form-group label { display: block; font-size: .7rem; color: var(--muted); margin-bottom: .3rem; }
-.form-group input { width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.15); border-radius: 6px; padding: .5rem .75rem; color: var(--cream); font-size: .8rem; outline: none; }
+.form-group input, .form-group select { width: 100%; background: var(--card); border: 1px solid rgba(201,168,76,.15); border-radius: 6px; padding: .5rem .75rem; color: var(--cream); font-size: .8rem; outline: none; }
 .form-group input:focus { border-color: var(--gold-dk); }
 .btn { width: 100%; padding: .65rem; border: none; border-radius: 6px; cursor: pointer; font-size: .8rem; font-weight: 600; transition: opacity .2s; }
 .btn:hover { opacity: .85; }
@@ -126,7 +126,8 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
         <div class="form-group"><label>Email</label><input id="f-email" type="email" placeholder="joao@email.com"/></div>
         <div class="form-group"><label>Telefone</label><input id="f-tel" placeholder="11999999999"/></div>
         <div class="form-group"><label>Método de pagamento</label><input id="f-metodo" value="pix"/></div>
-        <div class="form-group"><label>Valor pago (R$)</label><input id="f-valor" type="number" value="27.90"/></div>
+        <div class="form-group"><label>Produto</label><select id="f-produto"></select></div>
+        <div class="form-group"><label>Valor pago (R$)</label><input id="f-valor" type="number" step="0.01" min="0"/></div>
         <button class="btn btn-primary" id="btn-venda" >♥ Registrar venda e gerar link</button>
         <div id="resultado-venda" style="display:none"></div>
       </div>
@@ -149,6 +150,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
       </div>
 
       <div id="tab-chaveiros">
+        <div id="resumo-produtos" style="font-size:.75rem;color:var(--muted);margin-bottom:1rem"></div>
         <div class="stats" id="stats">
           <div class="stat-card"><span class="stat-num" id="s-total">-</span><span class="stat-lbl">Total</span></div>
           <div class="stat-card"><span class="stat-num" id="s-ativos">-</span><span class="stat-lbl">Ativos</span></div>
@@ -159,7 +161,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
           <table>
             <thead>
               <tr>
-                <th>Código</th><th>Comprador</th><th>Status</th><th>Página</th><th>Criado em</th><th>Ações</th>
+                <th>Código</th><th>Comprador</th><th>Produto</th><th>Status</th><th>Página</th><th>Criado em</th><th>Ações</th>
               </tr>
             </thead>
             <tbody id="tabela-chaveiros">
@@ -263,8 +265,11 @@ async function criarVenda() {
   const tel = document.getElementById('f-tel').value.trim()
   const metodo = document.getElementById('f-metodo').value.trim()
   const valor = parseFloat(document.getElementById('f-valor').value)
+  const produto = document.getElementById('f-produto').value
 
   if (!nome || !email) return toast('Nome e email são obrigatórios', 'err')
+  if (!produto) return toast('Escolha o produto', 'err')
+  if (!(valor >= 0)) return toast('Informe o valor pago', 'err')
 
   const btn = document.getElementById('btn-venda')
   btn.disabled = true
@@ -273,6 +278,7 @@ async function criarVenda() {
   try {
     const chaveiro = await api('POST', '/admin/chaveiros', {})
     const pedido = await api('POST', `/admin/chaveiros/${chaveiro.id}/pedido`, {
+      produto,
       nome_comprador: nome,
       email_comprador: email,
       telefone: tel,
@@ -311,10 +317,43 @@ async function criarVenda() {
   }
 }
 
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+
+// ── PRODUTOS ──
+let PRODUTOS = []
+const nomeProduto = id => (PRODUTOS.find(p => p.id === id) || {}).nome || id || '—'
+const brl = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+async function carregarProdutos() {
+  if (PRODUTOS.length) return
+  PRODUTOS = await api('GET', '/admin/produtos')
+  const sel = document.getElementById('f-produto')
+  sel.innerHTML = '<option value="">Escolha…</option>' + PRODUTOS
+    .map(p => `<option value="${p.id}">${p.nome}${p.preco ? ' — ' + brl(p.preco) : ''}</option>`).join('')
+  sel.addEventListener('change', () => {
+    const p = PRODUTOS.find(x => x.id === sel.value)
+    document.getElementById('f-valor').value = p && p.preco ? p.preco.toFixed(2) : ''
+  })
+}
+
+function resumoPorProduto(lista) {
+  const r = {}
+  lista.filter(c => c.produto).forEach(c => {
+    r[c.produto] = r[c.produto] || { qtd: 0, total: 0 }
+    r[c.produto].qtd++
+    r[c.produto].total += Number(c.valor_pago || 0)
+  })
+  const partes = Object.entries(r).sort((a, b) => b[1].total - a[1].total)
+    .map(([id, v]) => `${nomeProduto(id)}: <b style="color:var(--gold-lt)">${v.qtd}</b> · ${brl(v.total)}`)
+  document.getElementById('resumo-produtos').innerHTML = partes.length ? 'Vendas por produto — ' + partes.join(' &nbsp;|&nbsp; ') : ''
+}
+
 // ── CARREGAR CHAVEIROS ──
 async function carregarChaveiros() {
   try {
+    await carregarProdutos()
     const lista = await api('GET', '/admin/chaveiros')
+    resumoPorProduto(lista)
     document.getElementById('s-total').textContent = lista.length
     document.getElementById('s-ativos').textContent = lista.filter(c => c.status === 'ativo').length
     document.getElementById('s-pendentes').textContent = lista.filter(c => c.status === 'pendente').length
@@ -322,7 +361,7 @@ async function carregarChaveiros() {
 
     const tbody = document.getElementById('tabela-chaveiros')
     if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum chaveiro cadastrado</td></tr>'
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Nenhum chaveiro cadastrado</td></tr>'
       return
     }
 
@@ -331,7 +370,8 @@ async function carregarChaveiros() {
       const tr = document.createElement('tr')
       tr.innerHTML = `
         <td style="font-family:monospace;font-size:.7rem">${(c.codigo_unico || '').slice(0,12)}...</td>
-        <td>${c.nome_comprador || '<span style="color:var(--muted)">—</span>'}</td>
+        <td>${c.nome_comprador ? esc(c.nome_comprador) : '<span style="color:var(--muted)">—</span>'}</td>
+        <td style="font-size:.75rem">${c.produto ? nomeProduto(c.produto) : '<span style="color:var(--muted)">—</span>'}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>${c.slug_url
           ? `<a href="${BASE}/p/${c.slug_url}" target="_blank" style="color:var(--gold-lt);font-size:.75rem">abrir ↗</a>`

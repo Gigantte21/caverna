@@ -428,7 +428,8 @@ async function submitForm() {
       await uploadArquivo(audioFile, 'musica')
     }
 
-    document.getElementById('success-qr').src = qr_code || ''
+    const qrEl = document.getElementById('success-qr')
+    if (qr_code) qrEl.src = qr_code; else qrEl.style.display = 'none'
     document.getElementById('success-url').textContent = url_pagina
     document.getElementById('form-wrap').style.display = 'none'
     document.getElementById('success').classList.add('show')

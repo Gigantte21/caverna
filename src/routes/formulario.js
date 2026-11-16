@@ -86,7 +86,14 @@ export default async function formularioRoutes(fastify) {
       }
     }
 
-    const qr = await gerarEsalvarQRCode(pagina.id, slug)
+    // A página já foi gravada: se o QR falhar (ex.: R2 fora do ar), não derruba o envio —
+    // senão o cliente vê erro e, ao tentar de novo, recebe "já preenchido" com a página pela metade.
+    let qr = { url_imagem: null, url_destino: null }
+    try {
+      qr = await gerarEsalvarQRCode(pagina.id, slug)
+    } catch (err) {
+      fastify.log.error({ erro: err.message, pagina: pagina.id }, 'falha ao gerar QR code')
+    }
     const urlPagina = `${process.env.BASE_URL}/p/${slug}`
 
     return reply.code(201).send({
@@ -148,7 +155,6 @@ export default async function formularioRoutes(fastify) {
       fastify.log.info({ url, tipo, isCarrossel }, 'upload ok')
     } catch (uploadErr) {
       fastify.log.error({ erro: uploadErr.message, stack: uploadErr.stack }, 'erro upload')
-return reply.code(400).send({ error: uploadErr.message })
       return reply.code(400).send({ error: uploadErr.message })
     }
 

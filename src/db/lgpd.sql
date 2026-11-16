@@ -3,15 +3,17 @@
 -- Rodar manualmente ou agendar via pg_cron / job externo
 -- ================================================================
 
--- 1. Anonimiza logs de acesso com mais de 90 dias
---    Mantém o registro para fins estatísticos, mas remove dados pessoais
+-- 1. Anonimiza logs de acesso com mais de 6 meses
+--    Marco Civil da Internet (Lei 12.965/2014, art. 15): registros de acesso
+--    (IP, data e hora) devem ser guardados por 6 meses — não anonimizar antes.
+--    Depois disso, mantém o registro só para estatística, sem dado pessoal.
 UPDATE acesso_log
 SET
   ip          = 'anonimizado',
   user_agent  = 'anonimizado',
   geo_cidade  = NULL
 WHERE
-  acessado_em < NOW() - INTERVAL '90 days'
+  acessado_em < NOW() - INTERVAL '6 months'
   AND ip != 'anonimizado';
 
 -- 2. Remove logs de acesso com mais de 1 ano (após anonimização prévia)
