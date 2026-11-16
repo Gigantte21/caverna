@@ -22,7 +22,9 @@ export default async function adminRoutes(fastify) {
     const { rows } = await pool.query(
       `SELECT c.*, p.slug_url, p.ativo as pagina_ativa,
               pe.nome_comprador, pe.email_comprador, pe.status_pagamento,
-              pe.produto, pe.valor_pago, pe.finalidade
+              pe.produto, pe.valor_pago, pe.finalidade,
+              pe.origem, pe.frete, pe.telefone, pe.observacoes,
+              pe.cep, pe.logradouro, pe.numero, pe.complemento, pe.bairro, pe.cidade, pe.uf
        FROM chaveiro_nfc c
        LEFT JOIN pagina_romantica p ON p.chaveiro_id = c.id
        LEFT JOIN pedido pe ON pe.chaveiro_id = c.id
@@ -162,7 +164,8 @@ export default async function adminRoutes(fastify) {
     await pool.query(`
       UPDATE pedido SET
         nome_comprador = 'removido', email_comprador = 'removido@removido.com',
-        telefone = NULL, termos_ip = NULL
+        telefone = NULL, termos_ip = NULL, observacoes = NULL,
+        cep = NULL, logradouro = NULL, numero = NULL, complemento = NULL, bairro = NULL
       WHERE chaveiro_id IN (
         SELECT id FROM chaveiro_nfc WHERE status = 'cancelado'
         AND criado_em < NOW() - INTERVAL '90 days'

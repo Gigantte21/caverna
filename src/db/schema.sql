@@ -24,7 +24,23 @@ CREATE TABLE pedido (
   termos_versao VARCHAR(8) NOT NULL DEFAULT 'v1.0',
   termos_aceitos_em TIMESTAMPTZ,
   termos_ip VARCHAR(64),
-  pago_em TIMESTAMPTZ
+  pago_em TIMESTAMPTZ,
+  -- compra pela loja pública (Asaas)
+  origem VARCHAR(8) NOT NULL DEFAULT 'admin', -- 'admin' ou 'loja'
+  frete NUMERIC(10,2) NOT NULL DEFAULT 0,
+  observacoes TEXT,
+  cep VARCHAR(9),
+  logradouro VARCHAR(255),
+  numero VARCHAR(16),
+  complemento VARCHAR(64),
+  bairro VARCHAR(64),
+  cidade VARCHAR(64),
+  uf CHAR(2),
+  asaas_payment_id VARCHAR(64) UNIQUE,
+  asaas_invoice_url TEXT,
+  asaas_verificado_em TIMESTAMPTZ,
+  acompanhamento_token VARCHAR(64) UNIQUE,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE link_token (

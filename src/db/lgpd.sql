@@ -26,7 +26,9 @@ SET
   nome_comprador  = 'removido',
   email_comprador = 'removido@removido.com',
   telefone        = NULL,
-  termos_ip       = NULL
+  termos_ip       = NULL,
+  observacoes     = NULL,
+  cep = NULL, logradouro = NULL, numero = NULL, complemento = NULL, bairro = NULL
 WHERE
   chaveiro_id IN (
     SELECT id FROM chaveiro_nfc

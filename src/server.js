@@ -12,6 +12,7 @@ import fastifyStatic from '@fastify/static'
 import adminRoutes from './routes/admin.js'
 import formularioRoutes from './routes/formulario.js'
 import paginaRoutes from './routes/pagina.js'
+import lojaRoutes from './routes/loja.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -61,6 +62,7 @@ await fastify.register(fastifyStatic, {
 
 await fastify.register(adminRoutes)
 await fastify.register(paginaRoutes)
+await fastify.register(lojaRoutes)
 
 await fastify.register(async (instance) => {
   await instance.register(fastifyRateLimit, {

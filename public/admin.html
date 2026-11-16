@@ -348,7 +348,8 @@ async function carregarProdutos() {
 function resumoPorProduto(lista) {
   const r = {}
   const marketing = lista.filter(c => c.finalidade === 'marketing').length
-  lista.filter(c => c.produto && c.finalidade !== 'marketing').forEach(c => {
+  // Só entra no faturamento o que foi pago (pedidos da loja nascem "aguardando pagamento")
+  lista.filter(c => c.produto && c.finalidade !== 'marketing' && c.status_pagamento === 'pago').forEach(c => {
     r[c.produto] = r[c.produto] || { qtd: 0, total: 0 }
     r[c.produto].qtd++
     r[c.produto].total += Number(c.valor_pago || 0)
@@ -384,7 +385,7 @@ async function carregarChaveiros() {
       tr.innerHTML = `
         <td style="font-family:monospace;font-size:.7rem">${(c.codigo_unico || '').slice(0,12)}...</td>
         <td>${c.nome_comprador ? esc(c.nome_comprador) : '<span style="color:var(--muted)">—</span>'}</td>
-        <td style="font-size:.75rem">${c.produto ? nomeProduto(c.produto) : '<span style="color:var(--muted)">—</span>'}${c.finalidade === 'marketing' ? ' <span style="color:var(--gold-dk)">· marketing</span>' : ''}</td>
+        <td style="font-size:.75rem">${c.produto ? nomeProduto(c.produto) : '<span style="color:var(--muted)">—</span>'}${c.finalidade === 'marketing' ? ' <span style="color:var(--gold-dk)">· marketing</span>' : ''}${c.origem === 'loja' ? ' <span style="color:var(--muted)">· loja</span>' : ''}${c.status_pagamento === 'pendente' ? ' <span style="color:var(--red)">· aguardando pagamento</span>' : ''}${c.status_pagamento === 'estornado' ? ' <span style="color:var(--red)">· estornado</span>' : ''}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>${c.slug_url
           ? `<a href="${BASE}/p/${c.slug_url}" target="_blank" style="color:var(--gold-lt);font-size:.75rem">abrir ↗</a>`
@@ -395,19 +396,42 @@ async function carregarChaveiros() {
           <div class="table-actions">
             ${c.status !== 'ativo' ? `<button class="btn-ativar" data-id="${c.id}" data-action="ativar">Ativar</button>` : ''}
             ${c.status === 'ativo' ? `<button class="btn-bloquear" data-id="${c.id}" data-action="bloquear">Bloquear</button>` : ''}
+            ${c.cep ? `<button class="btn-logs" data-id="${c.id}" data-action="entrega">Entrega</button>` : ''}
             <button class="btn-logs" data-id="${c.id}" data-action="logs">Logs</button>
             <button class="btn-excluir" data-id="${c.id}" data-action="excluir">🗑</button>
           </div>
         </td>
       `
       tbody.appendChild(tr)
+      if (c.cep) {
+        // Linha escondida com os dados de envio (textContent: nada do cliente vira HTML)
+        const det = document.createElement('tr')
+        det.id = `entrega-${c.id}`
+        det.style.display = 'none'
+        const td = document.createElement('td')
+        td.colSpan = 7
+        td.style.cssText = 'font-size:.78rem;white-space:pre-line;color:var(--cream)'
+        td.textContent = [
+          `${c.nome_comprador} · ${c.telefone || 'sem telefone'} · ${c.email_comprador}`,
+          `${c.logradouro}, ${c.numero}${c.complemento ? ' — ' + c.complemento : ''}`,
+          `${c.bairro} · ${c.cidade}/${c.uf} · CEP ${c.cep}`,
+          `Frete: ${brl(c.frete)}`,
+          c.observacoes ? `Gravar na peça: ${c.observacoes}` : ''
+        ].filter(Boolean).join('\n')
+        det.appendChild(td)
+        tbody.appendChild(det)
+      }
     })
 
     tbody.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.id
         const action = btn.dataset.action
-        if (action === 'ativar') mudarStatus(id, 'ativo')
+        if (action === 'entrega') {
+          const det = document.getElementById(`entrega-${id}`)
+          det.style.display = det.style.display === 'none' ? '' : 'none'
+        }
+        else if (action === 'ativar') mudarStatus(id, 'ativo')
         else if (action === 'bloquear') mudarStatus(id, 'bloqueado')
         else if (action === 'logs') verLogs(id)
         else if (action === 'excluir') excluirChaveiro(id)

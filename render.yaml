@@ -35,3 +35,12 @@ services:
         sync: false
       - key: R2_PUBLIC_URL
         sync: false
+      # Loja pública — sem ASAAS_API_KEY e ASAAS_WEBHOOK_TOKEN a loja mostra os produtos mas não vende
+      - key: ASAAS_ENV
+        value: sandbox       # trocar para "production" quando for vender de verdade
+      - key: ASAAS_API_KEY
+        sync: false          # chave de API do Asaas (a do sandbox enquanto ASAAS_ENV=sandbox)
+      - key: ASAAS_WEBHOOK_TOKEN
+        sync: false          # o mesmo "token de autenticação" cadastrado no webhook do Asaas
+      - key: FRETE_FIXO
+        value: "15"          # frete único, em reais
