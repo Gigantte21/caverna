@@ -1,5 +1,40 @@
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import pool from '../db/pool.js'
 import { EMPRESA } from '../services/empresa.js'
+
+const PAGINA_HTML = fs.readFileSync(
+  path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'pagina.html'), 'utf8'
+)
+const TITULO_PADRAO = '<title id="page-title">Carregando...</title>'
+const escAttr = s => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+
+// Título e foto no próprio HTML, para o link mostrar prévia no WhatsApp e em outros apps
+// (eles não executam o JavaScript da página). Não registra acesso: isso é feito em /api/p/:slug.
+async function htmlComPrevia(slug) {
+  const { rows } = await pool.query(
+    `SELECT p.titulo_personalizado,
+            (SELECT m.url FROM midia m WHERE m.pagina_id = p.id AND m.tipo = 'foto'
+             ORDER BY m.is_carrossel DESC, m.ordem ASC LIMIT 1) AS capa
+     FROM pagina_romantica p
+     JOIN chaveiro_nfc c ON c.id = p.chaveiro_id
+     WHERE p.slug_url = $1 AND p.ativo = true AND c.status = 'ativo'`,
+    [slug]
+  )
+  if (!rows.length) return PAGINA_HTML
+  const titulo = escAttr(rows[0].titulo_personalizado || 'Nossa memória')
+  const tags = [
+    `<title id="page-title">${titulo}</title>`,
+    `<meta property="og:title" content="${titulo}"/>`,
+    '<meta property="og:description" content="Uma memória para sempre · A Caverna"/>',
+    '<meta property="og:type" content="website"/>',
+    rows[0].capa ? `<meta property="og:image" content="${escAttr(rows[0].capa)}"/>` : '',
+    `<meta name="twitter:card" content="${rows[0].capa ? 'summary_large_image' : 'summary'}"/>`
+  ].filter(Boolean).join('\n')
+  return PAGINA_HTML.replace(TITULO_PADRAO, tags)
+}
 
 export default async function paginaRoutes(fastify) {
 
@@ -8,7 +43,13 @@ export default async function paginaRoutes(fastify) {
   })
 
   fastify.get('/p/:slug', async (req, reply) => {
-    return reply.sendFile('pagina.html')
+    let html = PAGINA_HTML
+    try {
+      html = await htmlComPrevia(String(req.params.slug).slice(0, 64))
+    } catch (err) {
+      fastify.log.warn({ erro: err.message }, 'prévia do link indisponível') // a página abre do mesmo jeito
+    }
+    return reply.type('text/html; charset=utf-8').send(html)
   })
 
   fastify.get('/formulario', async (req, reply) => {
