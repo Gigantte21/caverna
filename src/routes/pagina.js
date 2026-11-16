@@ -1,4 +1,5 @@
 import pool from '../db/pool.js'
+import { EMPRESA } from '../services/empresa.js'
 
 export default async function paginaRoutes(fastify) {
 
@@ -13,6 +14,10 @@ export default async function paginaRoutes(fastify) {
   fastify.get('/formulario', async (req, reply) => {
     return reply.sendFile('formulario.html')
   })
+
+  fastify.get('/termos', async (req, reply) => reply.sendFile('termos.html'))
+  fastify.get('/privacidade', async (req, reply) => reply.sendFile('privacidade.html'))
+  fastify.get('/empresa', async () => EMPRESA)
 
   fastify.get('/api/p/:slug', async (req, reply) => {
     const { slug } = req.params
