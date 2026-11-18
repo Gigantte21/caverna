@@ -64,6 +64,18 @@ textarea{resize:vertical;min-height:120px;line-height:1.6;}
 select option{background:var(--deep);}
 .field-hint{font-size:.7rem;color:var(--muted);margin-top:.3rem;}
 
+/* Escolha do tema: cartões com uma amostra das cores */
+.temas{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;border:none;}
+.tema{position:relative;display:block;cursor:pointer;}
+.tema input{position:absolute;opacity:0;pointer-events:none;}
+.tema-card{display:flex;flex-direction:column;gap:.5rem;padding:.7rem;border:1px solid rgba(201,168,76,.15);border-radius:8px;background:var(--card);transition:border-color .2s,box-shadow .2s;}
+.tema input:checked + .tema-card{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
+.tema input:focus-visible + .tema-card{outline:2px solid var(--gold);outline-offset:2px;}
+.tema-amostra{height:46px;border-radius:5px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05rem;}
+.tema-amostra i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.tema-nome{font-size:.8rem;color:var(--cream);}
+.tema-desc{font-size:.68rem;color:var(--muted);line-height:1.35;}
+
 /* UPLOAD */
 .upload-area{border:1px dashed rgba(201,168,76,.25);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
 .upload-area:hover,.upload-area.drag{border-color:var(--gold);background:rgba(201,168,76,.04);}
@@ -149,6 +161,43 @@ select option{background:var(--deep);}
       <label>Mensagem de encerramento</label>
       <input type="text" id="encerramento" maxlength="500" placeholder="Obrigado por fazer parte da minha história."/>
       <div class="field-hint">Aparece no final da página. Opcional.</div>
+    </div>
+    <div class="field">
+      <label id="temas-label">Cores da página</label>
+      <div class="temas" role="radiogroup" aria-labelledby="temas-label">
+        <label class="tema">
+          <input type="radio" name="tema" value="classico" checked/>
+          <span class="tema-card">
+            <span class="tema-amostra" style="background:#0a0806;color:#e2c97e">Aa <i style="background:#c9a84c"></i><i style="background:#6b1a2a"></i></span>
+            <span class="tema-nome">Clássico</span>
+            <span class="tema-desc">Escuro, dourado e vinho</span>
+          </span>
+        </label>
+        <label class="tema">
+          <input type="radio" name="tema" value="romantico"/>
+          <span class="tema-card">
+            <span class="tema-amostra" style="background:#fbf4f0;color:#94374c">Aa <i style="background:#a8553a"></i><i style="background:#a8324a"></i></span>
+            <span class="tema-nome">Romântico</span>
+            <span class="tema-desc">Claro, rosa e vinho</span>
+          </span>
+        </label>
+        <label class="tema">
+          <input type="radio" name="tema" value="maternidade"/>
+          <span class="tema-card">
+            <span class="tema-amostra" style="background:#f5f8f7;color:#36667f">Aa <i style="background:#4e7d66"></i><i style="background:#4f7f8a"></i></span>
+            <span class="tema-nome">Maternidade</span>
+            <span class="tema-desc">Claro, azul e verde suaves</span>
+          </span>
+        </label>
+        <label class="tema">
+          <input type="radio" name="tema" value="noite"/>
+          <span class="tema-card">
+            <span class="tema-amostra" style="background:#0a0e17;color:#e6ecf5">Aa <i style="background:#c7d0e0"></i><i style="background:#3b4f8f"></i></span>
+            <span class="tema-nome">Noite</span>
+            <span class="tema-desc">Azul-escuro e prateado</span>
+          </span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -398,6 +447,7 @@ async function submitForm() {
         mensagem_especial: mensagem,
         mensagem_encerramento: encerramento || undefined,
         spotify_url: spotifyUrl || undefined,
+        tema: document.querySelector('input[name="tema"]:checked')?.value || 'classico',
         termos_aceitos: true,
         timeline
       })

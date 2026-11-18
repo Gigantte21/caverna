@@ -1,6 +1,7 @@
 import pool from '../db/pool.js'
 import { formularioAuth } from '../middleware/auth.js'
 import { gerarSlugUnico, origemDo } from '../services/tokens.js'
+import { TEMAS, TEMA_PADRAO } from '../services/temas.js'
 import { uploadMidia, LIMITES } from '../services/r2.js'
 import { sanitizeText, sanitizeLonga, sanitizeUrl, sanitizeData } from '../services/sanitize.js'
 import { gerarEsalvarQRCode } from '../services/qrcode.js'
@@ -29,7 +30,7 @@ export default async function formularioRoutes(fastify) {
     const titulo = sanitizeText(body.titulo_personalizado || '', 255)
     const mensagem = sanitizeLonga(body.mensagem_especial || '', 2000)
     const dataRelacionamento = sanitizeData(body.data_inicio_relacionamento)
-    const tema = sanitizeText(body.tema || 'classico', 32)
+    const tema = TEMAS.includes(body.tema) ? body.tema : TEMA_PADRAO
     const spotifyUrl = sanitizeUrl(body.spotify_url || '')
     const mensagemEncerramento = sanitizeLonga(body.mensagem_encerramento || '', 500)
 

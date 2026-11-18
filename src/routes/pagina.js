@@ -3,6 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import pool from '../db/pool.js'
 import { EMPRESA } from '../services/empresa.js'
+import { TEMAS } from '../services/temas.js'
 
 const PAGINA_HTML = fs.readFileSync(
   path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'pagina.html'), 'utf8'
@@ -15,7 +16,7 @@ const escAttr = s => String(s ?? '').replace(/[&<>"']/g, c =>
 // (eles não executam o JavaScript da página). Não registra acesso: isso é feito em /api/p/:slug.
 async function htmlComPrevia(slug) {
   const { rows } = await pool.query(
-    `SELECT p.titulo_personalizado,
+    `SELECT p.titulo_personalizado, p.tema,
             (SELECT m.url FROM midia m WHERE m.pagina_id = p.id AND m.tipo = 'foto'
              ORDER BY m.is_carrossel DESC, m.ordem ASC LIMIT 1) AS capa
      FROM pagina_romantica p
@@ -33,7 +34,11 @@ async function htmlComPrevia(slug) {
     rows[0].capa ? `<meta property="og:image" content="${escAttr(rows[0].capa)}"/>` : '',
     `<meta name="twitter:card" content="${rows[0].capa ? 'summary_large_image' : 'summary'}"/>`
   ].filter(Boolean).join('\n')
-  return PAGINA_HTML.replace(TITULO_PADRAO, tags)
+  // O tema já vem no HTML: a tela de carregamento abre com as cores certas, sem piscar
+  const tema = TEMAS.includes(rows[0].tema) ? rows[0].tema : 'classico'
+  return PAGINA_HTML
+    .replace(TITULO_PADRAO, tags)
+    .replace('<html lang="pt-BR" data-tema="classico">', `<html lang="pt-BR" data-tema="${tema}">`)
 }
 
 export default async function paginaRoutes(fastify) {
