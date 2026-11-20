@@ -78,6 +78,8 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
 .btn-bloquear { background: rgba(224,85,85,.2); color: var(--red); }
 .btn-link { background: rgba(201,168,76,.1); color: var(--gold); }
 .btn-logs { background: rgba(100,100,100,.2); color: var(--muted); }
+.sel-tema { margin-left: .5rem; background: var(--card); color: var(--cream); border: 1px solid rgba(201,168,76,.2); border-radius: 4px; padding: .15rem .3rem; font-size: .7rem; cursor: pointer; }
+.sel-tema:disabled { opacity: .5; cursor: wait; }
 .btn-excluir { background: rgba(224,85,85,.15); color: var(--red); }
 .tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(201,168,76,.1); margin-bottom: 1.5rem; }
 .tab { padding: .6rem 1.25rem; cursor: pointer; font-size: .8rem; color: var(--muted); border-bottom: 2px solid transparent; }
@@ -327,9 +329,11 @@ let PRODUTOS = []
 const nomeProduto = id => (PRODUTOS.find(p => p.id === id) || {}).nome || id || '—'
 const brl = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+let TEMAS = []
+
 async function carregarProdutos() {
   if (PRODUTOS.length) return
-  PRODUTOS = await api('GET', '/admin/produtos')
+  ;[PRODUTOS, TEMAS] = await Promise.all([api('GET', '/admin/produtos'), api('GET', '/admin/temas')])
   const sel = document.getElementById('f-produto')
   sel.innerHTML = '<option value="">Escolha…</option>' + PRODUTOS
     .map(p => `<option value="${p.id}">${p.nome}${p.preco ? ' — ' + brl(p.preco) : ''}</option>`).join('')
@@ -389,6 +393,9 @@ async function carregarChaveiros() {
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>${c.slug_url
           ? `<a href="${BASE}/p/${c.slug_url}" target="_blank" style="color:var(--gold-lt);font-size:.75rem">abrir ↗</a>`
+            + `<select class="sel-tema" data-id="${c.id}" aria-label="Cores da página">`
+            + TEMAS.map(t => `<option value="${t.id}"${t.id === (c.tema || 'classico') ? ' selected' : ''}>${esc(t.nome)}</option>`).join('')
+            + '</select>'
           : '<span style="color:var(--muted);font-size:.75rem">não criada</span>'
         }</td>
         <td style="font-size:.75rem;color:var(--muted)">${new Date(c.criado_em).toLocaleString('pt-BR')}</td>
@@ -437,8 +444,28 @@ async function carregarChaveiros() {
         else if (action === 'excluir') excluirChaveiro(id)
       })
     })
+    tbody.querySelectorAll('.sel-tema').forEach(sel => {
+      sel.dataset.atual = sel.value
+      sel.addEventListener('change', () => mudarTema(sel))
+    })
   } catch (err) {
     toast(err.message, 'err')
+  }
+}
+
+// Troca as cores de uma página pronta. Se der erro, o seletor volta ao tema anterior.
+async function mudarTema(sel) {
+  const anterior = sel.dataset.atual
+  sel.disabled = true
+  try {
+    const r = await api('PATCH', `/admin/chaveiros/${sel.dataset.id}/tema`, { tema: sel.value })
+    sel.dataset.atual = r.tema
+    toast(`Tema trocado para ${TEMAS.find(t => t.id === r.tema)?.nome || r.tema}`, 'ok')
+  } catch (err) {
+    sel.value = anterior
+    toast(err.message, 'err')
+  } finally {
+    sel.disabled = false
   }
 }
 

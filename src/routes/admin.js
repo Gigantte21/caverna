@@ -3,10 +3,26 @@ import { deletarChaveiro } from '../services/deletar.js'
 import { adminAuth } from '../middleware/auth.js'
 import { gerarCodigoUnico, criarLinkFormulario, origemDo } from '../services/tokens.js'
 import { PRODUTOS, PRODUTO_IDS } from '../services/produtos.js'
+import { TEMAS, TEMAS_NOMES } from '../services/temas.js'
 
 export default async function adminRoutes(fastify) {
 
   fastify.get('/admin/produtos', { preHandler: adminAuth }, async () => PRODUTOS)
+
+  fastify.get('/admin/temas', { preHandler: adminAuth }, async () =>
+    TEMAS.map(id => ({ id, nome: TEMAS_NOMES[id] || id })))
+
+  // Troca as cores de uma página já criada (o cliente escolheu errado, ou pediu outra)
+  fastify.patch('/admin/chaveiros/:id/tema', { preHandler: adminAuth }, async (req, reply) => {
+    const tema = req.body?.tema
+    if (!TEMAS.includes(tema)) return reply.code(400).send({ error: 'Tema inválido' })
+    const { rows } = await pool.query(
+      'UPDATE pagina_romantica SET tema = $1 WHERE chaveiro_id = $2 RETURNING tema',
+      [tema, req.params.id]
+    )
+    if (!rows.length) return reply.code(404).send({ error: 'Este chaveiro ainda não tem página' })
+    return { tema: rows[0].tema }
+  })
 
   fastify.post('/admin/chaveiros', { preHandler: adminAuth }, async (req, reply) => {
     const { nfc_uid } = req.body || {}
@@ -20,7 +36,7 @@ export default async function adminRoutes(fastify) {
 
   fastify.get('/admin/chaveiros', { preHandler: adminAuth }, async (req, reply) => {
     const { rows } = await pool.query(
-      `SELECT c.*, p.slug_url, p.ativo as pagina_ativa,
+      `SELECT c.*, p.slug_url, p.ativo as pagina_ativa, p.tema,
               pe.nome_comprador, pe.email_comprador, pe.status_pagamento,
               pe.produto, pe.valor_pago, pe.finalidade,
               pe.origem, pe.frete, pe.telefone, pe.observacoes,

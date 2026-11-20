@@ -3,4 +3,5 @@
 // Para criar um tema: acrescente o id aqui, o bloco de cores no pagina.html
 // e a opção no formulario.html.
 export const TEMAS = ['classico', 'romantico', 'maternidade', 'noite']
+export const TEMAS_NOMES = { classico: 'Clássico', romantico: 'Romântico', maternidade: 'Maternidade', noite: 'Noite' }
 export const TEMA_PADRAO = 'classico'
