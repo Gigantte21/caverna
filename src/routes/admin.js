@@ -37,6 +37,7 @@ export default async function adminRoutes(fastify) {
   fastify.get('/admin/chaveiros', { preHandler: adminAuth }, async (req, reply) => {
     const { rows } = await pool.query(
       `SELECT c.*, p.slug_url, p.ativo as pagina_ativa, p.tema,
+              ac.acessos, ac.pessoas, ac.acessos_nfc, ac.acessos_qr, ac.acessos_link, ac.acessos_7d, ac.ultimo_acesso,
               pe.nome_comprador, pe.email_comprador, pe.status_pagamento,
               pe.produto, pe.valor_pago, pe.finalidade,
               pe.origem, pe.frete, pe.telefone, pe.observacoes,
@@ -44,6 +45,18 @@ export default async function adminRoutes(fastify) {
        FROM chaveiro_nfc c
        LEFT JOIN pagina_romantica p ON p.chaveiro_id = c.id
        LEFT JOIN pedido pe ON pe.chaveiro_id = c.id
+       -- Acessos de cada página. "pessoas" = aparelhos diferentes (IP + navegador);
+       -- depois de 6 meses o IP é anonimizado e o acesso só conta no total.
+       LEFT JOIN LATERAL (
+         SELECT count(*)::int AS acessos,
+                count(DISTINCT (al.ip, al.user_agent)) FILTER (WHERE al.ip <> 'anonimizado')::int AS pessoas,
+                count(*) FILTER (WHERE al.origem = 'nfc')::int AS acessos_nfc,
+                count(*) FILTER (WHERE al.origem = 'qrcode')::int AS acessos_qr,
+                count(*) FILTER (WHERE al.origem = 'link_direto')::int AS acessos_link,
+                count(*) FILTER (WHERE al.acessado_em > NOW() - INTERVAL '7 days')::int AS acessos_7d,
+                max(al.acessado_em) AS ultimo_acesso
+         FROM acesso_log al WHERE al.pagina_id = p.id
+       ) ac ON p.id IS NOT NULL
        ORDER BY c.criado_em DESC`
     )
     return rows

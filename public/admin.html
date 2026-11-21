@@ -164,7 +164,7 @@ body { background: var(--black); color: var(--text); font-family: 'Segoe UI', sa
           <table>
             <thead>
               <tr>
-                <th>Código</th><th>Comprador</th><th>Produto</th><th>Status</th><th>Página</th><th>Criado em</th><th>Ações</th>
+                <th>Código</th><th>Comprador</th><th>Produto</th><th>Status</th><th>Página</th><th>Acessos</th><th>Criado em</th><th>Ações</th>
               </tr>
             </thead>
             <tbody id="tabela-chaveiros">
@@ -349,6 +349,21 @@ async function carregarProdutos() {
   fin.addEventListener('change', aplicarValor)
 }
 
+// Coluna "Acessos": pessoas diferentes em destaque, total e origem embaixo
+function celulaAcessos(c) {
+  if (!c.slug_url) return '<span style="color:var(--muted)">—</span>'
+  if (!c.acessos) return '<span style="color:var(--muted)">nenhum ainda</span>'
+  const quando = c.ultimo_acesso ? new Date(c.ultimo_acesso).toLocaleDateString('pt-BR') : ''
+  const origens = [
+    c.acessos_nfc && `chip ${c.acessos_nfc}`,
+    c.acessos_qr && `QR ${c.acessos_qr}`,
+    c.acessos_link && `link ${c.acessos_link}`
+  ].filter(Boolean).join(' · ')
+  return `<b style="color:var(--gold-lt)">${c.pessoas}</b> pessoa${c.pessoas === 1 ? '' : 's'}`
+    + ` <span style="color:var(--muted)">· ${c.acessos} acesso${c.acessos === 1 ? '' : 's'}</span>`
+    + `<br><span style="color:var(--muted);font-size:.68rem">${origens}${c.acessos_7d ? ` · ${c.acessos_7d} nos últimos 7 dias` : ''}${quando ? ` · último ${quando}` : ''}</span>`
+}
+
 function resumoPorProduto(lista) {
   const r = {}
   const marketing = lista.filter(c => c.finalidade === 'marketing').length
@@ -362,7 +377,14 @@ function resumoPorProduto(lista) {
     .map(([id, v]) => `${nomeProduto(id)}: <b style="color:var(--gold-lt)">${v.qtd}</b> · ${brl(v.total)}`)
   const txt = []
   if (partes.length) txt.push('Vendas por produto — ' + partes.join(' &nbsp;|&nbsp; '))
-  if (marketing) txt.push(`Marketing: <b style="color:var(--gold-lt)">${marketing}</b> peça(s) de cortesia, fora do faturamento`)
+  if (marketing) {
+    txt.push(`Marketing: <b style="color:var(--gold-lt)">${marketing}</b> peça(s) de cortesia, fora do faturamento`)
+    // Ranking de quem mais está fazendo a página circular (pessoas diferentes, não cliques repetidos)
+    const ranking = lista.filter(c => c.finalidade === 'marketing')
+      .sort((a, b) => (b.pessoas || 0) - (a.pessoas || 0) || (b.acessos || 0) - (a.acessos || 0))
+      .map((c, i) => `${i + 1}º ${esc(c.nome_comprador || '—')}: <b style="color:var(--gold-lt)">${c.pessoas || 0}</b> pessoa(s), ${c.acessos || 0} acesso(s)`)
+    txt.push('Divulgação — ' + ranking.join(' &nbsp;|&nbsp; '))
+  }
   document.getElementById('resumo-produtos').innerHTML = txt.join('<br>')
 }
 
@@ -379,7 +401,7 @@ async function carregarChaveiros() {
 
     const tbody = document.getElementById('tabela-chaveiros')
     if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">Nenhum chaveiro cadastrado</td></tr>'
+      tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhum chaveiro cadastrado</td></tr>'
       return
     }
 
@@ -392,12 +414,13 @@ async function carregarChaveiros() {
         <td style="font-size:.75rem">${c.produto ? nomeProduto(c.produto) : '<span style="color:var(--muted)">—</span>'}${c.finalidade === 'marketing' ? ' <span style="color:var(--gold-dk)">· marketing</span>' : ''}${c.origem === 'loja' ? ' <span style="color:var(--muted)">· loja</span>' : ''}${c.status_pagamento === 'pendente' ? ' <span style="color:var(--red)">· aguardando pagamento</span>' : ''}${c.status_pagamento === 'estornado' ? ' <span style="color:var(--red)">· estornado</span>' : ''}</td>
         <td><span class="badge badge-${c.status}">${c.status}</span></td>
         <td>${c.slug_url
-          ? `<a href="${BASE}/p/${c.slug_url}" target="_blank" style="color:var(--gold-lt);font-size:.75rem">abrir ↗</a>`
+          ? `<a href="${BASE}/p/${c.slug_url}?origem=admin" target="_blank" style="color:var(--gold-lt);font-size:.75rem" title="Abrir sem contar como acesso">abrir ↗</a>`
             + `<select class="sel-tema" data-id="${c.id}" aria-label="Cores da página">`
             + TEMAS.map(t => `<option value="${t.id}"${t.id === (c.tema || 'classico') ? ' selected' : ''}>${esc(t.nome)}</option>`).join('')
             + '</select>'
           : '<span style="color:var(--muted);font-size:.75rem">não criada</span>'
         }</td>
+        <td style="font-size:.75rem">${celulaAcessos(c)}</td>
         <td style="font-size:.75rem;color:var(--muted)">${new Date(c.criado_em).toLocaleString('pt-BR')}</td>
         <td>
           <div class="table-actions">
@@ -416,7 +439,7 @@ async function carregarChaveiros() {
         det.id = `entrega-${c.id}`
         det.style.display = 'none'
         const td = document.createElement('td')
-        td.colSpan = 7
+        td.colSpan = 8
         td.style.cssText = 'font-size:.78rem;white-space:pre-line;color:var(--cream)'
         td.textContent = [
           `${c.nome_comprador} · ${c.telefone || 'sem telefone'} · ${c.email_comprador}`,
